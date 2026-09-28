@@ -26,6 +26,10 @@ Extracted from AI-Assisted Work, where it was `skills/markdown-deck`, into its o
 - Two freshness tests needed the `model` skill installed beside this one and failed without it. They now use a stand-in, and two tests cover finding it and not finding it.
 - The browser tests expected the long table in their fixture to stay on one slide, which it has not done since 0.5.0 split long tables. Its slide now turns splitting off with `table-rows="0"`, so they test shrinking a long table to fit, as they were written to. Ten of them failed before.
 
+- `npm test` failed on Node 18, which `engines` supports, because Node 18 does not expand a glob given to `--test`. `tests/run.mjs` lists the test files instead, on any Node version and shell.
+
+- `npm test` failed on Node 18, which `engines` supports, because Node 18 does not expand a glob given to `--test`. `tests/run.mjs` lists the test files instead, on any Node version and shell.
+
 ### Removed
 
 - `scripts/pack-repo.mjs`. It assembled this repository from the framework's copy, and this repository is now the master.

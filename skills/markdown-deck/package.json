@@ -54,7 +54,7 @@
   },
   "scripts": {
     "example": "node bin/markdown-deck.mjs build examples/example.md --out .tmp/example --theme default",
-    "test": "node --test \"tests/*.test.mjs\""
+    "test": "node tests/run.mjs"
   },
   "keywords": [
     "markdown",
