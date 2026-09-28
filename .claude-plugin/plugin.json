@@ -1,0 +1,19 @@
+{
+  "name": "markdown-deck",
+  "version": "0.6.0",
+  "description": "Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source.",
+  "author": {
+    "name": "Dermot O'Brien",
+    "url": "https://github.com/dermot-obrien"
+  },
+  "homepage": "https://github.com/dermot-obrien/markdown-deck",
+  "repository": "https://github.com/dermot-obrien/markdown-deck",
+  "license": "CC-BY-4.0 AND Apache-2.0",
+  "keywords": [
+    "markdown",
+    "slides",
+    "deck",
+    "pdf",
+    "agent-skill"
+  ]
+}

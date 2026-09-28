@@ -1,0 +1,28 @@
+markdown-deck
+Copyright 2026 Dermot O'Brien
+
+This product is licensed under CC BY 4.0 (content) and Apache-2.0 (code).
+See LICENSE and the texts in LICENSES/.
+
+Derivation
+----------
+
+This product is derived from the markdown-deck skill of AI-Assisted Work,
+Copyright 2026 Dermot O'Brien, licensed under CC BY 4.0 (content) and
+Apache-2.0 (code).
+
+  Source repository   https://github.com/dermot-obrien/ai-assisted-work
+  Source path         skills/markdown-deck
+  Source commit       ad39fd980d9f1acd6db99a4cf5046aa0998e1c08 (2026-09-27)
+  Source version      markdown-deck 0.5.1
+  Extracted           2026-09-29, first released here as markdown-deck 0.6.0
+
+scripts/validate-skills.mjs is taken from AI-Assisted Work, scripts/validate-skills.mjs,
+at commit 86fd83c1cd737a2d0d29942209c9fe2b0b226e93, with one comment changed.
+
+The history of the work before extraction is the commit history of that path
+in the source repository. The changes made on extraction are listed under
+0.6.0 in CHANGELOG.md.
+
+"AI-Assisted Work" is a trademark of Dermot O'Brien, named here only to
+identify the origin of this product.

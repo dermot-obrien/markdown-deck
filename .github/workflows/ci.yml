@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: 2026 Dermot O'Brien
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  skills:
+    name: Agent Skills validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Zero-dependency on purpose, so this job needs no install step.
+      - name: Validate skills against the agentskills.io spec
+        run: node scripts/validate-skills.mjs skills
+
+  test:
+    name: Tests (Node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 22]
+    defaults:
+      run:
+        working-directory: skills/markdown-deck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install
+        run: npm install --no-audit --no-fund
+      # The browser tests skip themselves without playwright; install it on one leg so
+      # the canvas, fitting and PDF checks run somewhere.
+      - name: Install playwright
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        run: npm install --no-save --no-audit --no-fund playwright pdf-lib && npx playwright install --with-deps chromium
+      - name: Test
+        run: npm test
+      - name: Build the example
+        run: node bin/markdown-deck.mjs build examples/example.md --out .tmp/example --theme default --no-pdf
+
+  plugin:
+    name: Plugin manifests agree
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versions agree across SKILL.md, package.json and the plugin manifests
+        run: |
+          skill=$(sed -n 's/^  version: "\(.*\)"/\1/p' skills/markdown-deck/SKILL.md)
+          pkg=$(node -p "require('./skills/markdown-deck/package.json').version")
+          plugin=$(node -p "require('./.claude-plugin/plugin.json').version")
+          market=$(node -p "require('./.claude-plugin/marketplace.json').plugins[0].version")
+          echo "SKILL.md $skill, package.json $pkg, plugin.json $plugin, marketplace.json $market"
+          test "$skill" = "$pkg" && test "$pkg" = "$plugin" && test "$plugin" = "$market"
+
+  reuse:
+    name: REUSE compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v6

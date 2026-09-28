@@ -1,0 +1,22 @@
+{
+  "name": "markdown-deck",
+  "description": "The markdown-deck skill as a Claude Code plugin.",
+  "owner": {
+    "name": "Dermot O'Brien",
+    "url": "https://github.com/dermot-obrien"
+  },
+  "plugins": [
+    {
+      "name": "markdown-deck",
+      "source": "./",
+      "description": "Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source.",
+      "version": "0.6.0",
+      "category": "documentation",
+      "tags": [
+        "markdown",
+        "slides",
+        "pdf"
+      ]
+    }
+  ]
+}
