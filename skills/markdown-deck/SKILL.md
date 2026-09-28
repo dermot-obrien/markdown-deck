@@ -2,9 +2,9 @@
 name: markdown-deck
 description: Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source. Use when asked to make a deck or slides from a document or page, turn a document into a presentation, generate a PDF of slides, add deck tags to a document, or regenerate a deck that has drifted from its source.
 license: CC-BY-4.0 AND Apache-2.0. Content under CC BY 4.0, code under Apache-2.0; see LICENSE and NOTICE.
-compatibility: Node.js 18 or newer. PDF export additionally needs playwright and a Chromium-family browser; on Windows the bundled Edge is used automatically.
+compatibility: Node.js 18 or newer, with npm install run once in the skill directory. PDF export uses playwright, an optional dependency that install fetches, and Edge or Chrome where installed (always on Windows).
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
   homepage: https://github.com/dermot-obrien/markdown-deck
   x-skill-requires: ""
   x-derived-from: "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"
@@ -65,7 +65,7 @@ node bin/markdown-deck.mjs build <input.md> --out <dir> --theme default
 
 Useful options: `--theme` takes a built-in name or a path to a `.css` file, `--table-rows <n>` sets the table split, `--pdf` also exports `deck.pdf` and `--no-pdf` skips it, `--partials` also writes `slides/*.html` fragments for hosts that embed them, and `--eyebrow`, `--subtitle`, `--date`, `--footnote`, `--logo` fill the chrome. The eyebrow, the small line above each slide title, is `deck_eyebrow` in front matter, falling back to `sidebar_label`; `deck_eyebrow: ""` turns it off, and `eyebrow="..."` on a `deck:slide` or `deck:include` tag overrides it for one slide. Run `node bin/markdown-deck.mjs themes` to list themes, and `--help` for everything.
 
-First run in a fresh clone needs `npm install` in the skill directory. PDF export additionally needs `npm install playwright`; no browser download is required on Windows because Edge is used through `--channel msedge`, falling back to Chrome then bundled Chromium.
+First run in a fresh clone needs `npm install` in the skill directory, which also installs playwright for PDF export; no browser download is required on Windows because Edge is used through `--channel msedge`, falling back to Chrome then bundled Chromium.
 
 ### 4. Verify
 

@@ -4,6 +4,12 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.1] - 2026-09-29
+
+### Changed
+
+- Playwright, which PDF export needs, is now an optional dependency rather than an optional peer dependency, so `npm install` in the skill fetches it. Before, `npm install playwright` reported the package as up to date and installed nothing, because npm counted the peer declaration as satisfied. It installs no browsers: Edge or Chrome is used where installed. If the install is blocked, everything except PDF export still works, and the error says what to run.
+
 ## [0.6.0] - 2026-09-29
 
 Extracted from AI-Assisted Work, where it was `skills/markdown-deck`, into its own repository, https://github.com/dermot-obrien/markdown-deck, so it can be installed and used without that framework. The skill's behaviour is unchanged. NOTICE records the source commit, and the history before this entry is the history of that path in AI-Assisted Work.

@@ -12,14 +12,8 @@ It is an [Agent Skill](https://agentskills.io/specification), installable into a
 
 ## Requirements
 
-- Node 18 or newer, with `npm install` run once in `skills/markdown-deck/` for its two dependencies, `gray-matter` and `marked`.
-- For PDF export only, [Playwright](https://playwright.dev/), which the exporter uses to print the HTML deck. It is an optional dependency, so install it yourself:
-
-  ```bash
-  npm install playwright
-  ```
-
-  No browser download is needed where Microsoft Edge or Google Chrome is installed, as on any Windows machine: the exporter drives Edge first, then Chrome, and only then Playwright's own Chromium (`npx playwright install chromium`). `MARKDOWN_DECK_CHANNEL` or `MARKDOWN_DECK_BROWSER` chooses a browser explicitly.
+- Node 18 or newer, with `npm install` run once in `skills/markdown-deck/` (or wherever the skill is installed). It installs `gray-matter` and `marked`, and [Playwright](https://playwright.dev/), which the PDF export uses to print the HTML deck.
+- Playwright is an optional dependency: if a proxy or policy blocks it, the install still succeeds and everything except PDF export works. It installs no browsers. The exporter drives Microsoft Edge first, then Google Chrome, and only then Playwright's own Chromium, so nothing more is needed where Edge or Chrome is installed, as on any Windows machine. Elsewhere, `npx playwright install chromium` fetches one. `MARKDOWN_DECK_CHANNEL` or `MARKDOWN_DECK_BROWSER` chooses a browser explicitly.
 
 Building the HTML deck needs neither Playwright nor a browser.
 
@@ -90,7 +84,7 @@ npm install
 node bin/markdown-deck.mjs build path/to/doc.md --out dist --pdf
 ```
 
-PDF export needs `npm install playwright`. On Windows no browser download is required; the exporter uses the Edge that ships with the OS, then Chrome, then bundled Chromium. Override with `MARKDOWN_DECK_CHANNEL` or `MARKDOWN_DECK_BROWSER`.
+`npm install` also installs Playwright for PDF export. On Windows no browser download is required; the exporter uses the Edge that ships with the OS, then Chrome, then bundled Chromium. Override with `MARKDOWN_DECK_CHANNEL` or `MARKDOWN_DECK_BROWSER`.
 
 ## Usage
 

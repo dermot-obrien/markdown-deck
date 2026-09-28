@@ -24,9 +24,9 @@ export async function exportPdf(deckHtmlPath, outPdf, { onLog = console.log } = 
     ({ chromium } = await import('playwright'));
   } catch {
     throw new Error(
-      'PDF export needs playwright. Install it in this skill:\n' +
-      '  npm install playwright\n' +
-      'On Windows no browser download is needed; Edge is used via --channel msedge.');
+      'PDF export needs playwright, an optional dependency of this skill that is not installed.\n' +
+      'Run npm install in the skill directory; it installs playwright unless the install is blocked.\n' +
+      'No browser download is needed where Edge or Chrome is installed, as on Windows.');
   }
 
   const explicit = process.env.MARKDOWN_DECK_CHANNEL;
