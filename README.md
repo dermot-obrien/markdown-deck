@@ -10,6 +10,19 @@ Standalone: no dependency on any host repository or on any other skill. Every pa
 
 It is an [Agent Skill](https://agentskills.io/specification), installable into any agent or IDE that reads the format, including VS Code with GitHub Copilot, Claude Code, Cursor, Codex and Gemini CLI. It began as part of [AI-Assisted Work](https://github.com/dermot-obrien/ai-assisted-work); see [Origin](#origin).
 
+## Requirements
+
+- Node 18 or newer, with `npm install` run once in `skills/markdown-deck/` for its two dependencies, `gray-matter` and `marked`.
+- For PDF export only, [Playwright](https://playwright.dev/), which the exporter uses to print the HTML deck. It is an optional dependency, so install it yourself:
+
+  ```bash
+  npm install playwright
+  ```
+
+  No browser download is needed where Microsoft Edge or Google Chrome is installed, as on any Windows machine: the exporter drives Edge first, then Chrome, and only then Playwright's own Chromium (`npx playwright install chromium`). `MARKDOWN_DECK_CHANNEL` or `MARKDOWN_DECK_BROWSER` chooses a browser explicitly.
+
+Building the HTML deck needs neither Playwright nor a browser.
+
 ## Install
 
 markdown-deck is a plain [Agent Skill](https://agentskills.io/specification): a directory with a `SKILL.md`, scripts and assets. Nothing in it assumes a particular agent or IDE. Put `skills/markdown-deck/` wherever your agent reads skills from.
