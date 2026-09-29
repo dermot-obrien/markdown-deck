@@ -4,7 +4,9 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
-## [0.7.0] - 2026-09-29
+## [0.6.3] - 2026-09-29
+
+A patch release, although it adds a capability: before 1.0.0 a requirement such as `^0.6.0` excludes 0.7.0, and nothing here breaks a dependent (DD-11 lists what does).
 
 ### Added
 
