@@ -4,6 +4,23 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.5] - 2026-09-30
+
+A patch release, although it adds capabilities: nothing here breaks a deck or a dependent, and `^0.6.0` still matches.
+
+### Added
+
+- Background images. `background` in `[suite.markdown-deck]` sets an image behind the slides for every deck, `deck_background` in front matter overrides it for one deck, and `--background` for one build; `none` turns it off. The value is a path, relative to the file that declares it, or a table of `image`, `slides` (`all`, `cover` or `content`), `fit` (`cover`, `contain` or `repeat`), `position` and `wash` (0 to 1, the slide's ground colour laid over the image). The image, a png, jpg, svg or webp, is copied into `assets/`, so the deck stays self-contained and the PDF includes it, and it is listed in the manifest's dependencies. A missing image, an unsupported type or a bad option fails the build, naming the setting and its file. It is drawn through new theme tokens, `--slide-bg-image`, `--slide-bg-size`, `--slide-bg-repeat`, `--slide-bg-position` and `--slide-bg-wash`, so a theme can carry a background of its own and palettes compose with it. Designed HTML slides are unchanged; the image sits behind their frame.
+- Named colour schemes. `palettes` in `[suite.markdown-deck]` names token tables, as `[suite.markdown-deck.palettes.<name>]`. `palette`, `deck_palette` and the new `--palette` pick one by name, and `none` keeps the theme's own colours. A table of tokens works as before. An unknown scheme fails the build and lists the known ones; an unknown token in any scheme fails it too.
+- The binding reader takes inline tables, `{ key = value }`, and sub-tables two levels deep, for `palettes`.
+- `bin/check.mjs` checks named schemes and a palette given by name, and that a bound background exists and is a supported type. `inputs.toml` declares `palettes` and `background`, so `model doctor --skill markdown-deck` reports them.
+- Documentation: a README reorganised around installing for any agent, a quick start and an index, and `docs/` with a quick start guide, concepts, a configuration reference, a command reference and troubleshooting keyed to the real messages.
+
+### Fixed
+
+- PDF export waits for CSS background images to load before printing, since a slide hidden on screen has not fetched them.
+- `markdown-deck --help` exits 0. Run with no command it still prints the usage and exits 1.
+
 ## [0.6.4] - 2026-09-30
 
 A patch release: nothing in the skill's behaviour changed. It already conformed to the Agent Skills specification: `skills-ref` reported it valid before this release, and its `SKILL.md` is 105 lines and about 2,800 body tokens.

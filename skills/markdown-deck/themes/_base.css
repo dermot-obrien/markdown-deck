@@ -281,8 +281,18 @@ body.presenting .stage { padding: 0; }
   top: 0;
   left: 0;
   flex-direction: column;
-  background: var(--slide-bg);
   overflow: hidden;
+  /* The slide's ground colour, then an optional background image over it, then a wash of
+     the ground colour over the image to keep text legible. A theme or a build sets the
+     image with --slide-bg-image (a url(), or none) and --slide-bg-size, -repeat,
+     -position and -wash (0 to 1); cover and divider slides keep their own ground. */
+  --slide-ground: var(--slide-bg);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--slide-ground) calc(var(--slide-bg-wash, 0) * 100%), transparent),
+      color-mix(in srgb, var(--slide-ground) calc(var(--slide-bg-wash, 0) * 100%), transparent)),
+    var(--slide-bg-image, none) var(--slide-bg-position, center) / var(--slide-bg-size, cover) var(--slide-bg-repeat, no-repeat),
+    var(--slide-ground);
 }
 .slide.active { display: flex; }
 /* Laid out but invisible while a hidden slide is measured for fitting. */
@@ -362,9 +372,7 @@ body.presenting .stage { padding: 0; }
 .fit pre.mermaid .noteText, .fit pre.mermaid .noteText > tspan { fill: var(--slide-fg) !important; }
 
 /* Image slide: a finished 16:9 image fills the canvas; any other shape is letterboxed. */
-.slide.image-slide { background: var(--slide-bg); }
 .slide-image { display: block; width: 100%; height: 100%; object-fit: contain; }
-.slide.html-slide { background: var(--slide-bg); }
 .slide-frame { display: block; flex: 1; width: 100%; height: 100%; border: 0; background: transparent; }
 .html-slide .frame-body { flex: 1; min-height: 0; display: flex; padding: 0 88px 52px; }
 .image-caption {
@@ -382,7 +390,7 @@ body.presenting .stage { padding: 0; }
 }
 
 /* Cover */
-.slide.cover { background: var(--cover-bg); }
+.slide.cover { --slide-ground: var(--cover-bg); }
 .cover-wrap { padding: 96px; display: flex; flex-direction: column; height: 100%; width: 100%; }
 .cover-logo { width: 170px; opacity: .9; }
 .grow { flex: 1; }
@@ -392,7 +400,7 @@ body.presenting .stage { padding: 0; }
 .cover-foot { font-size: 20px; color: var(--cover-faint); max-width: 1200px; }
 
 /* Section divider: the cover's ground unless the theme gives dividers their own. */
-.slide.divider { background: var(--divider-bg, var(--cover-bg)); }
+.slide.divider { --slide-ground: var(--divider-bg, var(--cover-bg)); }
 .divider-wrap { padding: 96px; display: flex; flex-direction: column; height: 100%; width: 100%; }
 .divider-eyebrow { font-size: 24px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
   color: var(--divider-accent, var(--cover-accent)); margin: 0 0 20px; }

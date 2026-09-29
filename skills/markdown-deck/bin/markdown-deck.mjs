@@ -28,6 +28,10 @@ Usage:
 Build options:
   --out <dir>        output directory (default: <input dir>/dist)
   --theme <name>     built-in theme name, or a path to a .css file (default: default)
+  --palette <name>   a colour scheme named in the palettes binding, or none for the
+                     theme's own colours (deck_palette; palette in the binding)
+  --background <p>   image behind every slide: png, jpg, svg or webp, copied into assets/;
+                     none turns it off (deck_background; background in the binding)
   --title <text>     deck title (default: front-matter title, else the filename)
   --subtitle <text>  cover subtitle
   --date <text>      cover date
@@ -93,7 +97,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const cmd = args._[0];
 
-  if (!cmd || args.help || args.h) { console.log(USAGE); process.exit(cmd ? 0 : 1); }
+  if (!cmd || args.help || args.h) { console.log(USAGE); process.exit(cmd || args.help || args.h ? 0 : 1); }
 
   if (cmd === 'themes') {
     console.log(listThemes().join('\n'));
@@ -134,6 +138,8 @@ async function main() {
   const r = build(input, {
     out: args.out,
     theme: args.theme,
+    palette: args.palette,
+    background: args.background,
     title: args.title,
     subtitle: args.subtitle,
     date: args.date,

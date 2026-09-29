@@ -12,9 +12,9 @@
  * The keys this skill accepts are declared in `inputs.toml` beside SKILL.md, so
  * `model doctor --skill markdown-deck` can check a repository's answer against them.
  *
- * Only the one section is read, with a deliberately small TOML reader: strings, booleans
- * and numbers. Node has no TOML parser built in, and a dependency for eight lines of
- * configuration is not worth its weight.
+ * Only the one section is read, with a deliberately small TOML reader: strings, booleans,
+ * numbers and flat inline tables. Node has no TOML parser built in, and a dependency for
+ * a dozen lines of configuration is not worth its weight.
  */
 
 import fs from 'node:fs';
@@ -38,8 +38,45 @@ export function findBindings(start) {
   }
 }
 
+/** An inline table, `{ k = v, ... }`, as an object, such as a background's options. */
+function inlineTable(s, where) {
+  const out = {};
+  let depth = 0;
+  let quote = null;
+  let start = 1;
+  const parts = [];
+  for (let i = 1; i < s.length; i++) {
+    const c = s[i];
+    if (quote) {
+      if (c === '\\' && quote === '"') i++;
+      else if (c === quote) quote = null;
+    } else if (c === '"' || c === "'") {
+      quote = c;
+    } else if (c === '{') {
+      depth++;
+    } else if (c === ',' && depth === 0) {
+      parts.push(s.slice(start, i));
+      start = i + 1;
+    } else if (c === '}') {
+      if (depth === 0) {
+        parts.push(s.slice(start, i));
+        for (const part of parts) {
+          if (!part.trim()) continue;
+          const m = part.trim().match(/^([A-Za-z0-9_-]+)\s*=\s*(.+)$/);
+          if (!m) throw new Error(`${where}: unsupported inline table entry ${JSON.stringify(part.trim())}`);
+          out[m[1]] = value(m[2], where);
+        }
+        return out;
+      }
+      depth--;
+    }
+  }
+  throw new Error(`${where}: unterminated inline table`);
+}
+
 function value(raw, where) {
   const s = raw.trim();
+  if (s.startsWith('{')) return inlineTable(s, where);
   if (s.startsWith('"')) {
     let out = '';
     for (let i = 1; i < s.length; i++) {
@@ -64,17 +101,21 @@ function value(raw, where) {
   if (bare === 'true') return true;
   if (bare === 'false') return false;
   if (/^[+-]?\d+(\.\d+)?$/.test(bare)) return Number(bare);
-  throw new Error(`${where}: unsupported value ${JSON.stringify(s)}; use a quoted string, true, false or a number`);
+  throw new Error(`${where}: unsupported value ${JSON.stringify(s)}; use a quoted string, true, false, a number or an inline table`);
 }
 
 /**
  * The key-value pairs of one `[section]` of a TOML file.
  *
- * A one-level sub-table, `[section.name]`, becomes a nested object on `out.name`. That
- * is what lets a repository express a palette as tokens rather than CSS:
+ * A sub-table, `[section.name]`, becomes a nested object on `out.name`, and one more
+ * level, `[section.name.key]`, an object on `out.name.key`. That is what lets a repository
+ * express a palette, or a set of named palettes, as tokens rather than CSS:
  *
  *     [suite.markdown-deck.palette]
  *     heading = "#143a5a"
+ *
+ *     [suite.markdown-deck.palettes.dusk]
+ *     heading = "#3b2f5c"
  *
  * Anything deeper is ignored, as is any other section. Still a deliberately small reader.
  */
@@ -89,8 +130,16 @@ export function readSection(text, section = SECTION, file = 'bindings') {
       if (h[1] === section) {
         target = out;
       } else if (h[1].startsWith(`${section}.`)) {
-        const name = h[1].slice(section.length + 1);
-        target = name.includes('.') ? null : (out[name] ??= {});
+        const names = h[1].slice(section.length + 1).split('.').map((n) => n.trim());
+        if (names.length > 2) {
+          target = null;
+        } else {
+          target = out;
+          for (const n of names) {
+            if (target[n] === undefined || typeof target[n] !== 'object') target[n] = {};
+            target = target[n];
+          }
+        }
       } else {
         target = null;
       }

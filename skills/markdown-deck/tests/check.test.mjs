@@ -56,3 +56,34 @@ test('a binding that does not parse is a problem', () => {
 test('an argument is a usage error', () => {
   assert.equal(run('--nope').status, 2);
 });
+
+test('named palettes, a palette picked by name and a bound background pass', () => {
+  fs.mkdirSync(path.join(dir, '.agents', 'art'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.agents', 'art', 'bg.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+  bind('[suite.markdown-deck]\npalette = "dusk"\nbackground = { image = "art/bg.svg", wash = 0.2 }\n\n'
+    + '[suite.markdown-deck.palettes.dusk]\nheading = "#3b2f5c"\n');
+  const r = run();
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+});
+
+test('an unknown scheme name, or an unknown token in a scheme, is a problem', () => {
+  bind('[suite.markdown-deck]\npalette = "dawn"\n\n[suite.markdown-deck.palettes.dusk]\nheading = "#3b2f5c"\n');
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /no palette named "dawn"\. Known: dusk, or none/);
+  bind('[suite.markdown-deck.palettes.dusk]\nheadng = "#3b2f5c"\n');
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /dusk: unknown palette token: headng/);
+});
+
+test('a missing background image, or one of an unsupported type, is a problem', () => {
+  bind('[suite.markdown-deck]\nbackground = "art/gone.png"\n');
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /background image art\/gone\.png does not exist/);
+  bind('[suite.markdown-deck.background]\nimage = "art/bg.gif"\n');
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /art\/bg\.gif is not a supported image type/);
+});

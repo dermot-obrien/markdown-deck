@@ -85,6 +85,22 @@ export async function exportPdf(deckHtmlPath, outPdf, { onLog = console.log } = 
       window.__deck.fitAll();
       return window.__deck.fits();
     });
+    // A background image is CSS, not an <img>, and a slide hidden on screen has not
+    // fetched it. Under print every slide shows, so load and decode each one now, or the
+    // page can print before its background arrives.
+    await page.evaluate(async () => {
+      const urls = new Set();
+      for (const s of document.querySelectorAll('.slide')) {
+        for (const m of getComputedStyle(s).backgroundImage.matchAll(/url\("([^"]+)"\)/g)) urls.add(m[1]);
+      }
+      await Promise.all([...urls].map((u) => new Promise((r) => {
+        const img = new Image();
+        img.onload = () => (img.decode ? img.decode().then(r, r) : r());
+        img.onerror = r;
+        img.src = u;
+      })));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    });
     fs.mkdirSync(path.dirname(path.resolve(outPdf)), { recursive: true });
     await page.pdf({
       path: path.resolve(outPdf),
