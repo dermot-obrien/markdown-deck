@@ -4,6 +4,16 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.3] - 2026-09-29
+
+A patch release, although it adds a capability: before 1.0.0 a requirement such as `^0.6.0` excludes 0.7.0, and nothing here breaks a dependent (DD-11 lists what does).
+
+### Added
+
+- `bin/check.mjs`, the skill's post-install check, as DD-11 of AI-Assisted Work defines it. Run from the workspace root, it checks Node.js 18 or newer, that `npm install` has been run in the skill, and, where `[suite.markdown-deck]` is bound, that the binding parses, the theme exists, the palette names only known tokens and the registry's folder exists. Missing playwright and a missing `mermaid` path are warnings. Exit 0 when all is well, 1 with one line per problem, 2 for a usage or environment error. It needs no `model` skill.
+- `bundle.json`, the bundle manifest DD-11 defines, declaring the skill, its version, its purl, its requirements (none) and its check. The marketplace is its `claude-plugin` adapter.
+- CI validates `bundle.json` against the bundle schema and the skill with `scripts/validate-bundle.mjs`. The validator and the schema are copies from AI-Assisted Work, in `scripts/` and `scripts/vendor/`, so CI needs no network.
+
 ## [0.6.2] - 2026-09-29
 
 ### Changed

@@ -1,0 +1,28 @@
+{
+  "$schema": "pkg:generic/dermot-obrien/ai-assisted-work/bundle-schema@1.0.0",
+  "name": "markdown-deck",
+  "owner": "dermot-obrien",
+  "description": "Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source.",
+  "license": "CC-BY-4.0 AND Apache-2.0",
+  "homepage": "https://github.com/dermot-obrien/markdown-deck",
+  "derived_from": [
+    "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"
+  ],
+  "skills": [
+    {
+      "name": "markdown-deck",
+      "path": "skills/markdown-deck",
+      "version": "0.6.3",
+      "purl": "pkg:generic/dermot-obrien/markdown-deck/markdown-deck@0.6.3",
+      "requires": [],
+      "check": {
+        "command": ["node", "bin/check.mjs"],
+        "runtime": "node",
+        "description": "Node.js 18+, the skill's npm dependencies installed, and any [suite.markdown-deck] binding valid"
+      }
+    }
+  ],
+  "adapters": {
+    "claude-plugin": ".claude-plugin/marketplace.json"
+  }
+}
