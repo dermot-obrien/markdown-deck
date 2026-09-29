@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { pathToFileURL } from 'node:url';
 import { build, findLocalMermaid } from '../src/index.mjs';
 import { exportPdf } from '../src/pdf.mjs';
@@ -462,6 +463,88 @@ The end.
   const raw = fs.readFileSync(path.join(hdir, 'dist', 'deck.pdf'), 'latin1');
   assert.ok(r.bytes > 0);
   assert.equal((raw.match(/\/Type\s*\/Page\b/g) || []).length, 3);
+});
+
+/** A small PNG whose pixels vary, so a PDF keeps it as an image rather than a fill. */
+function gradientPng(width, height) {
+  const crc = (buf) => {
+    let c = ~0;
+    for (const b of buf) { c ^= b; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); }
+    return ~c >>> 0;
+  };
+  const chunk = (type, data) => {
+    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const td = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+    const sum = Buffer.alloc(4); sum.writeUInt32BE(crc(td));
+    return Buffer.concat([len, td, sum]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4);
+  ihdr.set([8, 2, 0, 0, 0], 8);
+  const rows = [];
+  for (let y = 0; y < height; y++) {
+    rows.push(0);
+    for (let x = 0; x < width; x++) rows.push((x * 4) % 256, (y * 7) % 256, 128);
+  }
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(Buffer.from(rows))), chunk('IEND', Buffer.alloc(0)),
+  ]);
+}
+
+test('a background image paints the slides it names, under its wash, and reaches the PDF', { skip: skip() }, async () => {
+  const bdir = path.join(dir, 'background');
+  fs.mkdirSync(path.join(bdir, 'art'), { recursive: true });
+  fs.writeFileSync(path.join(bdir, 'art', 'bg.png'), gradientPng(64, 36));
+  fs.writeFileSync(path.join(bdir, 'plain.html'), '<!doctype html><html><body><h2>Made</h2></body></html>');
+  const src = path.join(bdir, 'doc.md');
+  fs.writeFileSync(src, `---
+title: "Background"
+deck_background:
+  image: art/bg.png
+  slides: content
+  wash: 0.5
+---
+
+# Background
+
+<!-- deck:cover -->
+
+<!-- deck:slide -->
+## Over the image
+
+Text.
+
+<!-- deck:html src="./plain.html" title="Designed" header="true" -->
+`);
+  build(src, { out: path.join(bdir, 'dist'), theme: 'default', onWarn: () => {} });
+  const deck = path.join(bdir, 'dist', 'deck.html');
+  const page = await open(pathToFileURL(deck).href);
+  const styles = await page.evaluate(() => [...document.querySelectorAll('.deck > .slide')].map((s) => {
+    const cs = getComputedStyle(s);
+    return { image: cs.backgroundImage, colour: cs.backgroundColor };
+  }));
+  assert.equal(styles.length, 3);
+  assert.doesNotMatch(styles[0].image, /bg\.png/, 'content only: the cover keeps its ground');
+  assert.match(styles[1].image, /^linear-gradient\(.*\), url\("file:.*\/assets\/bg\.png"\)/, 'a wash over the image');
+  assert.match(styles[1].image, /color\(srgb 1 1 1 \/ 0\.5\)|rgba\(255, 255, 255, 0\.5\)/, 'the wash is half the white ground');
+  assert.match(styles[2].image, /bg\.png/, 'an html slide has the background behind its frame');
+  assert.equal(await page.evaluate(() => document.querySelectorAll('.slide.html-slide .slide-header').length), 1,
+    'and keeps the deck header');
+  const loaded = await page.evaluate(() => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.naturalWidth);
+    img.onerror = () => resolve(0);
+    img.src = 'assets/bg.png';
+  }));
+  assert.equal(loaded, 64, 'the copied image loads from disk, with no server');
+  await page.close();
+
+  const pdf = path.join(bdir, 'dist', 'deck.pdf');
+  await exportPdf(deck, pdf, { onLog: () => {} });
+  const images = (f) => (fs.readFileSync(f, 'latin1').match(/\/Subtype\s*\/Image/g) || []).length;
+  assert.ok(images(pdf) > 0, 'the PDF carries the background image');
+  assert.equal(images(path.join(dir, 'titles', 'deck.pdf')), 0, 'a deck without one carries none');
 });
 
 const mermaidFile = findLocalMermaid(process.cwd());

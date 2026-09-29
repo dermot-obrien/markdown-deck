@@ -7,6 +7,7 @@
 #   binding            front matter overriding it
 #   theme              deck_theme
 #   palette            deck_palette
+#   background         deck_background
 #   comments           deck_comments
 #   thumbnails         deck_thumbnails
 #   feedbackTo         deck_feedback_to
@@ -85,4 +86,25 @@ prefix: font-body, font-mono, deck-bg, slide-bg, slide-fg, body, heading, on-hea
 row-alt, accent, accent-deep, accent-wash, code-bg, code-fg, code-inline-bg, cover-bg,
 cover-fg, cover-accent, cover-muted, cover-faint, divider-bg, divider-fg, divider-accent,
 divider-muted, chrome-fg. An unknown key fails the build
-rather than being ignored. A deck overrides the repository palette with deck_palette."""
+rather than being ignored. Or the name of a scheme in palettes. A deck overrides the
+repository palette with deck_palette, which may also name a scheme, or say none for the
+theme's own colours."""
+
+[inputs.options.palettes]
+type = "table"
+required = false
+description = """Named colour schemes, each a table of the tokens palette takes, as
+[suite.markdown-deck.palettes.<name>]. palette, deck_palette and --palette pick one by name.
+An unknown token in any scheme, or an unknown scheme name, fails the build."""
+
+[inputs.options.background]
+type = "str"
+required = false
+description = """An image behind every slide, copied into each deck's assets/ so the deck and
+its PDF stay self-contained: a png, jpg, svg or webp path relative to this file, or a table
+with image (required), slides (all, cover or content, which is every slide but the cover;
+default all), fit (cover, contain or repeat; default cover), position (a CSS
+background-position; default center) and wash (0 to 1, a layer of the slide's own ground
+colour over the image to keep text legible; default 0). A missing image or an unsupported
+type fails the build. A deck overrides it with deck_background, relative to the document,
+or turns it off with deck_background: none."""

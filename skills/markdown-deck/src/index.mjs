@@ -104,6 +104,127 @@ export function loadTheme(name, palette) {
 }
 
 /**
+ * Check every named colour scheme in `palettes`, so a typo in one fails the build that
+ * reads it rather than waiting for the deck that picks it.
+ */
+export function checkPalettes(palettes, where = 'palettes') {
+  if (palettes === undefined || palettes === null) return {};
+  if (typeof palettes !== 'object' || Array.isArray(palettes)) {
+    throw new Error(`${where} must be a table of named palettes, each a table of tokens`);
+  }
+  for (const [name, tokens] of Object.entries(palettes)) {
+    if (!tokens || typeof tokens !== 'object' || Array.isArray(tokens)) {
+      throw new Error(`${where}.${name} must be a table of palette tokens`);
+    }
+    for (const k of Object.keys(tokens)) {
+      if (!PALETTE_TOKENS.includes(k)) {
+        throw new Error(`${where}.${name}: unknown palette token: ${k}. Known tokens: ${PALETTE_TOKENS.join(', ')}`);
+      }
+    }
+  }
+  return palettes;
+}
+
+/**
+ * The tokens a palette setting stands for. A table of tokens is itself; a string names a
+ * scheme in `palettes`; `none` means the theme's own colours. Unset is undefined.
+ * An unknown name throws, naming the schemes there are.
+ */
+export function resolvePalette(value, palettes = {}, where = 'palette') {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value === 'object' && !Array.isArray(value)) return value;
+  const name = String(value).trim();
+  if (name === 'none') return null;
+  if (palettes && Object.prototype.hasOwnProperty.call(palettes, name)) return palettes[name];
+  const known = Object.keys(palettes || {});
+  throw new Error(`${where}: no palette named "${name}". `
+    + (known.length ? `Known: ${known.join(', ')}, or none` : 'Name schemes in [suite.markdown-deck.palettes] first, or give a table of tokens'));
+}
+
+/** Image types a background may be, by extension. */
+export const BACKGROUND_TYPES = Object.freeze(['png', 'jpg', 'jpeg', 'svg', 'webp']);
+const BACKGROUND_KEYS = Object.freeze(['image', 'slides', 'fit', 'position', 'wash']);
+const BACKGROUND_SLIDES = Object.freeze(['all', 'cover', 'content']);
+const BACKGROUND_FITS = Object.freeze({
+  cover: { size: 'cover', repeat: 'no-repeat' },
+  contain: { size: 'contain', repeat: 'no-repeat' },
+  repeat: { size: 'auto', repeat: 'repeat' },
+});
+
+/**
+ * A background setting in its full form, or null for `none`, or undefined when unset.
+ *
+ * A string is the image's path, or `none`. A table gives `image` (required), `slides`
+ * (all, cover or content, which is every slide but the cover), `fit` (cover, contain or
+ * repeat), `position` (a CSS background-position) and `wash` (0 to 1, how much of the
+ * slide's own ground colour lies over the image, to keep text legible). Anything else
+ * throws, naming the setting.
+ */
+export function normaliseBackground(value, where = 'background') {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value === 'string') {
+    if (value.trim() === 'none') return null;
+    value = { image: value };
+  }
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${where}: expected an image path, none, or a table with ${BACKGROUND_KEYS.join(', ')}`);
+  }
+  for (const k of Object.keys(value)) {
+    if (!BACKGROUND_KEYS.includes(k)) {
+      throw new Error(`${where}: unknown key ${k}. Known keys: ${BACKGROUND_KEYS.join(', ')}`);
+    }
+  }
+  const image = typeof value.image === 'string' ? value.image.trim() : '';
+  if (!image) throw new Error(`${where}: image is required, a path to a ${BACKGROUND_TYPES.join(', ')} file`);
+  const ext = path.extname(image).slice(1).toLowerCase();
+  if (!BACKGROUND_TYPES.includes(ext)) {
+    throw new Error(`${where}: ${image} is not a supported image type. Use ${BACKGROUND_TYPES.join(', ')}`);
+  }
+  const slides = String(value.slides ?? 'all');
+  if (!BACKGROUND_SLIDES.includes(slides)) {
+    throw new Error(`${where}: slides is "${slides}"; expected one of ${BACKGROUND_SLIDES.join(', ')}`);
+  }
+  const fit = String(value.fit ?? 'cover');
+  if (!BACKGROUND_FITS[fit]) {
+    throw new Error(`${where}: fit is "${fit}"; expected one of ${Object.keys(BACKGROUND_FITS).join(', ')}`);
+  }
+  const position = String(value.position ?? 'center').trim();
+  // It is written into the deck's stylesheet, so nothing that could end a declaration.
+  if (!position || /[;{}<>"'\\]/.test(position)) {
+    throw new Error(`${where}: position "${position}" is not a CSS background-position`);
+  }
+  const wash = Number(value.wash ?? 0);
+  if (!Number.isFinite(wash) || wash < 0 || wash > 1 || (typeof value.wash === 'string' && !value.wash.trim())) {
+    throw new Error(`${where}: wash is ${JSON.stringify(value.wash)}; expected a number from 0 to 1`);
+  }
+  return { image, slides, fit, position, wash };
+}
+
+/**
+ * The stylesheet a background adds: the theme's background tokens, set for the slides
+ * it covers. `_base.css` paints every slide from these tokens, so a theme can set them
+ * itself and a palette composes with them. `href` is the copied image, relative to the
+ * deck; null switches any background image off.
+ */
+export function backgroundCss(bg, href) {
+  if (bg === null) return '\n/* background: none */\n.slide { --slide-bg-image: none; }\n';
+  if (!bg) return '';
+  const { size, repeat } = BACKGROUND_FITS[bg.fit];
+  const image = `url("${href}")`;
+  const target = { all: '.slide', cover: '.slide.cover', content: '.slide:not(.cover)' }[bg.slides];
+  return `
+/* background image */
+.slide {
+  --slide-bg-image: ${bg.slides === 'all' ? image : 'none'};
+  --slide-bg-size: ${size};
+  --slide-bg-repeat: ${repeat};
+  --slide-bg-position: ${bg.position};
+  --slide-bg-wash: ${bg.wash};
+}
+${bg.slides === 'all' ? '' : `${target} { --slide-bg-image: ${image}; }\n`}`;
+}
+
+/**
  * Resolves `deck:include` tags for one document.
  *
  *   src="../other.md"   a document by path, relative to the including one
@@ -189,10 +310,15 @@ function checkImage(file, label, onWarn) {
 
 /**
  * @param {string} input     path to the tagged Markdown file
- * @param {object} opts      { out, theme, title, subtitle, date, footnote, eyebrow,
- *                             logo, mermaidSrc, partials, thumbnails, comments, tableRows,
- *                             feedbackTo, feedbackSubject, deckId, htmlName,
- *                             bindings, strictRenders, refresh, root, onWarn, onLog }
+ * @param {object} opts      { out, theme, palette, background, title, subtitle, date,
+ *                             footnote, eyebrow, logo, mermaidSrc, partials, thumbnails,
+ *                             comments, tableRows, feedbackTo, feedbackSubject, deckId,
+ *                             htmlName, bindings, strictRenders, refresh, root, onWarn, onLog }
+ *
+ * `palette` is a table of tokens, a scheme named in the `palettes` binding, or none.
+ * `background` is an image path, none, or a table (see normaliseBackground); a path
+ * resolves against the file that gives it: the working directory for an option, the
+ * document for deck_background, the binding file for the binding.
  *
  * `refresh` re-renders a stale image through the model skill before using it, so a
  * build picks up a diagram edited since its last render.
@@ -243,10 +369,22 @@ export function build(input, opts = {}) {
   const eyebrow = String(opts.eyebrow ?? data.deck_eyebrow ?? data.sidebar_label ?? '');
   const deckId = slug(opts.deckId || data.deck_id || title);
   const htmlName = opts.htmlName || 'deck.html';
-  const css = loadTheme(
-    themeFrom(pick(opts.theme, 'deck_theme', 'theme', 'default')),
-    pick(opts.palette, 'deck_palette', 'palette', undefined),
+  // Where a setting came from, so a path in it resolves against the file that wrote it
+  // and an error names that file.
+  const origin = (opt, fm, key) => (
+    opt !== undefined && opt !== null ? { dir: process.cwd(), where: `--${key}` }
+      : data[fm] !== undefined && data[fm] !== null ? { dir: srcDir, where: `${fm} in ${input}` }
+        : repo[key] !== undefined ? { dir: path.dirname(bound.file), where: `[suite.markdown-deck] ${key} in ${bound.file}` }
+          : null
   );
+  // A palette is a table of tokens, or the name of one of the schemes in `palettes`, or
+  // none for the theme's own colours.
+  const palettes = checkPalettes(repo.palettes, bound.file ? `[suite.markdown-deck] palettes in ${bound.file}` : 'palettes');
+  const paletteFrom = origin(opts.palette, 'deck_palette', 'palette');
+  const palette = resolvePalette(
+    pick(opts.palette, 'deck_palette', 'palette', undefined), palettes, paletteFrom?.where,
+  );
+  let css = loadTheme(themeFrom(pick(opts.theme, 'deck_theme', 'theme', 'default')), palette);
   const mdInst = makeMarked();
 
   // Images resolve against the document they are written in, which for an included slide
@@ -283,6 +421,26 @@ export function build(input, opts = {}) {
     fs.copyFileSync(from, path.join(assetsDir, base));
     return `assets/${encodeURIComponent(base)}`;
   };
+
+  // A background image behind the slides, copied into assets/ so the deck and its PDF
+  // stay self-contained. Declared but missing fails the build: a deck that silently lost
+  // its background looks finished and is not.
+  const backgroundFrom = origin(opts.background, 'deck_background', 'background');
+  const background = normaliseBackground(
+    pick(opts.background, 'deck_background', 'background', undefined), backgroundFrom?.where,
+  );
+  if (background) {
+    const file = path.resolve(backgroundFrom.dir, background.image);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+      throw new Error(`${backgroundFrom.where}: background image ${background.image} not found (${file})`);
+    }
+    if (background.slides === 'cover' && !cover) {
+      onWarn('the background is for the cover only, and this deck has no deck:cover');
+    }
+    css += backgroundCss(background, copyAsset(file, srcDir, 'background image'));
+  } else if (background === null) {
+    css += backgroundCss(null);
+  }
 
   // Reference links resolve against definitions anywhere in the document, usually its
   // foot, so every slide carries the full set.

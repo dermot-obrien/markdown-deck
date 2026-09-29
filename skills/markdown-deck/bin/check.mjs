@@ -7,8 +7,10 @@
  * Checks Node.js 18 or newer, that `npm install` has been run in the skill (its
  * dependencies resolve from it), and, where the workspace binds [suite.markdown-deck] in
  * .agents/skill-bindings.toml, that the binding parses, its theme exists, its palette
- * names only known tokens and its mermaid and registry paths resolve. Playwright is
- * optional: without it only PDF export is unavailable, which is a warning.
+ * and every named palette use only known tokens, a palette given by name is one of them,
+ * its background image exists and is a supported type, and its mermaid and registry
+ * paths resolve. Playwright is optional: without it only PDF export is unavailable,
+ * which is a warning.
  *
  * Exit 0: correct (warnings may be printed). Exit 1: problems, one line each.
  * Exit 2: usage or environment error. Offline and read-only.
@@ -72,12 +74,39 @@ if (file) {
     if (values.theme !== undefined && !themes.includes(String(values.theme)) && !exists(String(values.theme))) {
       problems.push(`${file}: [${SECTION}] theme ${values.theme} is neither a built-in theme (${themes.join(', ')}) nor a .css file that exists. Name one of those, or correct the path.`);
     }
-    if (values.palette && typeof values.palette === 'object' && missing.length === 0) {
-      const { PALETTE_TOKENS } = await import(pathToFileURL(path.join(skillDir, 'src', 'index.mjs')).href);
-      for (const k of Object.keys(values.palette)) {
-        if (!PALETTE_TOKENS.includes(k)) {
-          problems.push(`${file}: [${SECTION}.palette] ${k} is not a palette token, and a build stops on it. Known tokens: ${PALETTE_TOKENS.join(', ')}.`);
+    const styled = values.palette !== undefined || values.palettes !== undefined || values.background !== undefined;
+    if (styled && missing.length === 0) {
+      const {
+        PALETTE_TOKENS, checkPalettes, resolvePalette, normaliseBackground,
+      } = await import(pathToFileURL(path.join(skillDir, 'src', 'index.mjs')).href);
+      if (values.palette && typeof values.palette === 'object') {
+        for (const k of Object.keys(values.palette)) {
+          if (!PALETTE_TOKENS.includes(k)) {
+            problems.push(`${file}: [${SECTION}.palette] ${k} is not a palette token, and a build stops on it. Known tokens: ${PALETTE_TOKENS.join(', ')}.`);
+          }
         }
+      }
+      let palettes = null;
+      try {
+        palettes = checkPalettes(values.palettes, `[${SECTION}.palettes]`);
+      } catch (e) {
+        problems.push(`${file}: ${e.message}. A build stops on it.`);
+      }
+      if (palettes && typeof values.palette === 'string') {
+        try {
+          resolvePalette(values.palette, palettes, `[${SECTION}] palette`);
+        } catch (e) {
+          problems.push(`${file}: ${e.message}.`);
+        }
+      }
+      try {
+        const bg = normaliseBackground(values.background, `[${SECTION}] background`);
+        const img = bg && path.resolve(base, bg.image);
+        if (img && !(fs.existsSync(img) && fs.statSync(img).isFile())) {
+          problems.push(`${file}: [${SECTION}] background image ${bg.image} does not exist (${img}), and a build stops on it. Correct the path; it is relative to this file.`);
+        }
+      } catch (e) {
+        problems.push(`${file}: ${e.message}.`);
       }
     }
     if (typeof values.mermaid === 'string' && !/^https?:\/\//.test(values.mermaid) && !fs.existsSync(path.resolve(base, values.mermaid))) {

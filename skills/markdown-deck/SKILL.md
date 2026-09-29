@@ -4,7 +4,7 @@ description: Render tagged sections of a Markdown document into HTML slides and 
 license: CC-BY-4.0 AND Apache-2.0. Content under CC BY 4.0, code under Apache-2.0; see LICENSE and NOTICE.
 compatibility: Node.js 18 or newer, with npm install run once in the skill directory. PDF export uses playwright, an optional dependency that install fetches, and Edge or Chrome where installed (always on Windows).
 metadata:
-  version: "0.6.4"
+  version: "0.6.5"
   homepage: https://github.com/dermot-obrien/markdown-deck
   x-skill-requires: ""
   x-derived-from: "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"
@@ -71,7 +71,7 @@ First run in a fresh clone needs `npm install` in the skill directory, which als
 
 Open `deck.html`. The slide index down the left lists slide titles; click one to jump to it, and collapse the index with « in its header. Previous and Next sit beneath the slide, the arrow keys do the same, `I` toggles the index, `T` switches it between titles and thumbnails, and `F` presents full screen. Titles is the default; pass `--thumbnails`, or set `deck_thumbnails: true` in the front matter, to open with PowerPoint-style thumbnails instead. Check that no slide body is empty and that images resolved. Then confirm `deck.pdf` exists and is non-zero if it was requested.
 
-Repository-wide defaults live in `[suite.markdown-deck]` of `.agents/skill-bindings.toml`: `theme`, `comments`, `thumbnails`, `feedbackTo`, `feedbackSubject`, and `pdf`, which makes `build` export the PDF without `--pdf`. A deck overrides any of them in its front matter with the `deck_` form of the key, and a command-line option overrides both. When the optional `model` skill is installed beside this one, `python <skills>/model/bin/model.py doctor --skill markdown-deck` shows what a repository has set and checks it against `inputs.toml`. Without `model`, `node bin/check.mjs`, run from the workspace root, checks the install and these bindings.
+Repository-wide defaults live in `[suite.markdown-deck]` of `.agents/skill-bindings.toml`: `theme`, `palette`, `palettes`, `background`, `comments`, `thumbnails`, `feedbackTo`, `feedbackSubject`, and `pdf`, which makes `build` export the PDF without `--pdf`. A deck overrides any of them in its front matter with the `deck_` form of the key, and a command-line option overrides both. When the optional `model` skill is installed beside this one, `python <skills>/model/bin/model.py doctor --skill markdown-deck` shows what a repository has set and checks it against `inputs.toml`. Without `model`, `node bin/check.mjs`, run from the workspace root, checks the install and these bindings.
 
 For review, build with `--comments` (or `deck_comments: true`) and `--feedback-to <address>` (or `deck_feedback_to`). Reviewers comment per slide in a panel on the right, `C` to toggle; nothing leaves their browser until they choose Email review, Copy or Download. Give the deck a stable `deck_id`, because stored comments are keyed by it. Slide addresses are ids such as `#interfaces`, so links survive reordering.
 
@@ -100,6 +100,26 @@ Write the document first and tag it second. A document written to be a deck read
 
 Prefer tables over bullet lists for anything comparative; the theme styles them for projection. Keep mermaid fences if the host renders them, because the deck renders them too. It copies an installed mermaid beside the deck, so diagrams draw offline; with none installed it loads mermaid from the CDN, and `mermaid` in the repository bindings, or `--mermaid`, names a file or URL instead.
 
+### Colour schemes and backgrounds
+
+A palette overrides the theme's colour tokens. Name several schemes once and pick one per deck:
+
+```toml
+[suite.markdown-deck]
+palette = "dusk"
+background = { image = "art/texture.png", slides = "content", wash = 0.85 }
+
+[suite.markdown-deck.palettes.dusk]
+heading  = "#3b2f5c"
+cover-bg = "#1f1a2e"
+```
+
+`deck_palette: meadow` in front matter, or `--palette meadow`, picks another scheme; a table of tokens still works in place of a name, and `none` keeps the theme's own colours. An unknown scheme or token fails the build.
+
+`background` puts an image behind the slides: a path, relative to the file that declares it, or a table of `image`, `slides` (`all`, `cover` or `content`), `fit` (`cover`, `contain` or `repeat`), `position` and `wash` (0 to 1, the slide's ground colour laid over the image so text stays legible). `deck_background` overrides it for a deck, relative to the document, `--background` for a build, and `none` turns it off. The image is copied into `assets/` and reaches the PDF. A png, jpg, svg or webp only; a missing image fails the build. Keep a wash of 0.8 or more behind body text.
+
+Every setting, command and error message is documented in the repository's [docs](https://github.com/dermot-obrien/markdown-deck/tree/main/docs).
+
 ## Extending
 
-Themes are plain CSS token files in `themes/`. Copy `themes/default.css`, change the custom properties, and pass the path to `--theme`. Dividers use the cover tokens unless the theme sets `--divider-bg`, `--divider-fg`, `--divider-accent` and `--divider-muted`. `themes/_base.css` holds the layout and never names a colour, so a new theme is about thirty lines.
+Themes are plain CSS token files in `themes/`. Copy `themes/default.css`, change the custom properties, and pass the path to `--theme`. Dividers use the cover tokens unless the theme sets `--divider-bg`, `--divider-fg`, `--divider-accent` and `--divider-muted`. A theme can carry its own background image with `--slide-bg-image` and `--slide-bg-size`, `-repeat`, `-position` and `-wash`. `themes/_base.css` holds the layout and never names a colour, so a new theme is about thirty lines.
