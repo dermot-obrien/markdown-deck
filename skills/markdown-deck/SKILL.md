@@ -4,7 +4,7 @@ description: Render tagged sections of a Markdown document into HTML slides and 
 license: CC-BY-4.0 AND Apache-2.0. Content under CC BY 4.0, code under Apache-2.0; see LICENSE and NOTICE.
 compatibility: Node.js 18 or newer, with npm install run once in the skill directory. PDF export uses playwright, an optional dependency that install fetches, and Edge or Chrome where installed (always on Windows).
 metadata:
-  version: "0.6.3"
+  version: "0.6.4"
   homepage: https://github.com/dermot-obrien/markdown-deck
   x-skill-requires: ""
   x-derived-from: "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"

@@ -371,7 +371,21 @@ Node's built-in test runner, no extra dependency. `tests/parse`, `tests/render` 
 
 ## Compatibility notes
 
-`SKILL.md` carries only the five fields the Agent Skills specification defines: `name`, `description`, `license`, `compatibility`, `metadata`. Tool-specific frontmatter is deliberately absent, because several tools reject unknown fields on upload and none of them mean the same thing across implementations. Any tool-specific behaviour belongs in an overlay applied at install time, not in this file.
+`SKILL.md` carries only fields the Agent Skills specification defines: `name`, `description`, `license`, `compatibility` and `metadata`. It leaves out the sixth, `allowed-tools`, which the specification marks experimental. Tool-specific frontmatter is deliberately absent, because several tools reject unknown fields on upload and none of them mean the same thing across implementations. Any tool-specific behaviour belongs in an overlay applied at install time, not in this file.
+
+## Agent Skills conformance
+
+`markdown-deck` conforms to the [Agent Skills specification](https://agentskills.io/specification). Its `SKILL.md` carries only the fields the specification defines, its `name` is the name of the directory it is installed into (`skills/markdown-deck` here, and `markdown-deck` under whichever skills directory an installer uses), every `metadata` value is a string, and the file stays within the specification's guidance of 500 lines and 5,000 tokens, with detail in files it links by a relative path one level deep. The `x-` keys in `metadata` are this project's own, which the specification allows.
+
+CI checks this on every pull request and every push to `main`, with `skills-ref`, the specification's reference validator, beside this repository's own `scripts/validate-skills.mjs`, which also checks that relative links resolve. To run the same checks locally, from the repository root:
+
+```bash
+python -m pip install "git+https://github.com/agentskills/agentskills@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref"
+skills-ref validate skills/markdown-deck
+node scripts/validate-skills.mjs skills
+```
+
+On Windows, set `PYTHONUTF8=1` before running `skills-ref`, which otherwise reads `SKILL.md` in the system's code page.
 
 ## Versions and identifiers
 
