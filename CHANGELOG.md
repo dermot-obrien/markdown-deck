@@ -4,6 +4,19 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.4] - 2026-09-30
+
+A patch release: nothing in the skill's behaviour changed. It already conformed to the Agent Skills specification: `skills-ref` reported it valid before this release, and its `SKILL.md` is 105 lines and about 2,800 body tokens.
+
+### Added
+
+- CI runs `skills-ref validate` on the skill, the reference validator of the [Agent Skills specification](https://agentskills.io/specification), pinned to a commit, and fails a `SKILL.md` over the specification's guidance of 500 lines or about 5,000 body tokens.
+- The README has an Agent Skills conformance section: what conforming means here, and how to run the same checks locally. CONTRIBUTING lists `skills-ref validate`.
+
+### Fixed
+
+- The README's compatibility notes said the specification defines five front-matter fields. It defines six; `SKILL.md` uses five and leaves out the experimental `allowed-tools`.
+
 ## [0.6.3] - 2026-09-29
 
 A patch release, although it adds a capability: before 1.0.0 a requirement such as `^0.6.0` excludes 0.7.0, and nothing here breaks a dependent (DD-11 lists what does).

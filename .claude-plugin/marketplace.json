@@ -11,7 +11,7 @@
       "source": "./",
       "strict": false,
       "description": "Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source.",
-      "version": "0.6.3",
+      "version": "0.6.4",
       "author": {
         "name": "Dermot O'Brien",
         "url": "https://github.com/dermot-obrien"

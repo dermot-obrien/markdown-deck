@@ -21,6 +21,7 @@ Run, from the repository root:
 
 ```bash
 node scripts/validate-skills.mjs skills
+skills-ref validate skills/markdown-deck
 cd skills/markdown-deck && npm install && npm test
 ```
 
@@ -29,6 +30,8 @@ The browser tests are skipped unless a browser can be launched. `npm install` in
 Keep the skill generic. It is used by many organisations, so nothing in it may name or imply one: no organisation names, internal hosts or brand palettes in code, themes, tests or examples. An organisation's own theme or palette belongs in its own repository, bound through `[suite.markdown-deck]` of its `.agents/skill-bindings.toml`.
 
 Record a user-visible change in `CHANGELOG.md` and raise the version in `skills/markdown-deck/package.json`, `skills/markdown-deck/SKILL.md` (`metadata.version`) and the skill's entry in `.claude-plugin/marketplace.json` together.
+
+`skills-ref` is the Agent Skills reference validator; the README's [Agent Skills conformance](README.md#agent-skills-conformance) section says how to install it. CI runs both, and fails a `SKILL.md` over 500 lines or about 5,000 tokens: move detail into a file under the skill and link it.
 
 ## Releases
 
