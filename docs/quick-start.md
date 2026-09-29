@@ -61,7 +61,7 @@ npm install --prefix .agents/skills/markdown-deck
 node .agents/skills/markdown-deck/bin/check.mjs
 ```
 
-`npm install` takes a minute and fetches three packages and their dependencies: two for parsing Markdown and Playwright for the PDF. It downloads no browser. The check should print:
+`npm install` takes seconds to a minute. It fetches two packages for reading Markdown and Playwright for the PDF, about a dozen packages in all, and downloads no browser. The check should print:
 
 ```
 markdown-deck: ok
@@ -167,7 +167,7 @@ You should see three lines; on macOS and Linux the paths use `/`:
   dist\deck.pdf (36 KB)
 ```
 
-The browser line names whichever browser printed the PDF, and the size varies a little. `dist` now holds `deck.html`, `deck.pdf`, `manifest.json` and an `assets` folder.
+The browser line names whichever browser printed the PDF, and the size varies a little. `dist` now holds `deck.html`, `deck.pdf` and `manifest.json`. A deck with images also gets an `assets` folder.
 
 ## 7. Open it
 
@@ -256,7 +256,7 @@ node .agents/skills/markdown-deck/bin/check.mjs
 node .agents/skills/markdown-deck/bin/markdown-deck.mjs build talk.md --out dist --pdf
 ```
 
-The check prints `markdown-deck: ok`. Reload `deck.html`: the cover is deep purple, the slide headings are purple, and the two content slides sit on a pale blue-to-sand gradient. `dist/assets` now holds `texture.svg`, and the PDF shows the same.
+The check prints `markdown-deck: ok`. Reload `deck.html`: the cover turns a dark purple, the slide headings and the table header turn purple, and the two content slides sit on a pale blue-to-sand gradient. `dist/assets` now holds `texture.svg`, and the PDF shows the same.
 
 Try the other scheme for one build, then without any scheme:
 
@@ -265,7 +265,7 @@ node .agents/skills/markdown-deck/bin/markdown-deck.mjs build talk.md --out dist
 node .agents/skills/markdown-deck/bin/markdown-deck.mjs build talk.md --out dist --palette none --background none
 ```
 
-The first gives green headings and a dark green cover. The second is the plain default theme with no background. The same choices can live in the document's front matter, as `deck_palette: meadow` and `deck_background: none`.
+Reload `deck.html` after each. The first gives green headings and a dark green cover, on the same background. The second is the plain default theme with no background. Without `--pdf`, only `deck.html` changes. The same choices can live in the document's front matter, as `deck_palette: meadow` and `deck_background: none`.
 
 ## 9. Let your agent do it
 
