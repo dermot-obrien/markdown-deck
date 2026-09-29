@@ -4,7 +4,7 @@ description: Render tagged sections of a Markdown document into HTML slides and 
 license: CC-BY-4.0 AND Apache-2.0. Content under CC BY 4.0, code under Apache-2.0; see LICENSE and NOTICE.
 compatibility: Node.js 18 or newer, with npm install run once in the skill directory. PDF export uses playwright, an optional dependency that install fetches, and Edge or Chrome where installed (always on Windows).
 metadata:
-  version: "0.6.2"
+  version: "0.7.0"
   homepage: https://github.com/dermot-obrien/markdown-deck
   x-skill-requires: ""
   x-derived-from: "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"
@@ -71,7 +71,7 @@ First run in a fresh clone needs `npm install` in the skill directory, which als
 
 Open `deck.html`. The slide index down the left lists slide titles; click one to jump to it, and collapse the index with « in its header. Previous and Next sit beneath the slide, the arrow keys do the same, `I` toggles the index, `T` switches it between titles and thumbnails, and `F` presents full screen. Titles is the default; pass `--thumbnails`, or set `deck_thumbnails: true` in the front matter, to open with PowerPoint-style thumbnails instead. Check that no slide body is empty and that images resolved. Then confirm `deck.pdf` exists and is non-zero if it was requested.
 
-Repository-wide defaults live in `[suite.markdown-deck]` of `.agents/skill-bindings.toml`: `theme`, `comments`, `thumbnails`, `feedbackTo`, `feedbackSubject`, and `pdf`, which makes `build` export the PDF without `--pdf`. A deck overrides any of them in its front matter with the `deck_` form of the key, and a command-line option overrides both. When the optional `model` skill is installed beside this one, `python <skills>/model/bin/model.py doctor --skill markdown-deck` shows what a repository has set and checks it against `inputs.toml`.
+Repository-wide defaults live in `[suite.markdown-deck]` of `.agents/skill-bindings.toml`: `theme`, `comments`, `thumbnails`, `feedbackTo`, `feedbackSubject`, and `pdf`, which makes `build` export the PDF without `--pdf`. A deck overrides any of them in its front matter with the `deck_` form of the key, and a command-line option overrides both. When the optional `model` skill is installed beside this one, `python <skills>/model/bin/model.py doctor --skill markdown-deck` shows what a repository has set and checks it against `inputs.toml`. Without `model`, `node bin/check.mjs`, run from the workspace root, checks the install and these bindings.
 
 For review, build with `--comments` (or `deck_comments: true`) and `--feedback-to <address>` (or `deck_feedback_to`). Reviewers comment per slide in a panel on the right, `C` to toggle; nothing leaves their browser until they choose Email review, Copy or Download. Give the deck a stable `deck_id`, because stored comments are keyed by it. Slide addresses are ids such as `#interfaces`, so links survive reordering.
 
