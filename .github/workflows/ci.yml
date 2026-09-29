@@ -50,19 +50,25 @@ jobs:
       - name: Build the example
         run: node bin/markdown-deck.mjs build examples/example.md --out .tmp/example --theme default --no-pdf
 
-  plugin:
-    name: Plugin manifests agree
+  versions:
+    name: Each skill's versions agree
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Versions agree across SKILL.md, package.json and the plugin manifests
+      - name: SKILL.md, package.json and the marketplace entry agree, per skill
         run: |
-          skill=$(sed -n 's/^  version: "\(.*\)"/\1/p' skills/markdown-deck/SKILL.md)
+          fail=0
+          for d in skills/*/; do
+            name=$(basename "$d")
+            skill=$(sed -n 's/^  version: "\(.*\)"/\1/p' "$d/SKILL.md")
+            market=$(node -p "(require('./.claude-plugin/marketplace.json').plugins.find(p => p.name === '$name') || {}).version")
+            echo "$name: SKILL.md $skill, marketplace.json $market"
+            [ "$skill" = "$market" ] || fail=1
+          done
           pkg=$(node -p "require('./skills/markdown-deck/package.json').version")
-          plugin=$(node -p "require('./.claude-plugin/plugin.json').version")
-          market=$(node -p "require('./.claude-plugin/marketplace.json').plugins[0].version")
-          echo "SKILL.md $skill, package.json $pkg, plugin.json $plugin, marketplace.json $market"
-          test "$skill" = "$pkg" && test "$pkg" = "$plugin" && test "$plugin" = "$market"
+          skill=$(sed -n 's/^  version: "\(.*\)"/\1/p' skills/markdown-deck/SKILL.md)
+          echo "markdown-deck: package.json $pkg"; [ "$pkg" = "$skill" ] || fail=1
+          exit $fail
 
   reuse:
     name: REUSE compliance

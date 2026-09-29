@@ -1,6 +1,6 @@
 {
   "name": "markdown-deck",
-  "description": "The markdown-deck skill as a Claude Code plugin.",
+  "description": "The markdown-deck bundle's skills, one package per skill.",
   "owner": {
     "name": "Dermot O'Brien",
     "url": "https://github.com/dermot-obrien"
@@ -9,13 +9,26 @@
     {
       "name": "markdown-deck",
       "source": "./",
+      "strict": false,
       "description": "Render tagged sections of a Markdown document into HTML slides and a PDF, keeping the Markdown as the only source.",
-      "version": "0.6.1",
-      "category": "documentation",
-      "tags": [
+      "version": "0.6.2",
+      "author": {
+        "name": "Dermot O'Brien",
+        "url": "https://github.com/dermot-obrien"
+      },
+      "homepage": "https://github.com/dermot-obrien/markdown-deck",
+      "repository": "https://github.com/dermot-obrien/markdown-deck",
+      "license": "CC-BY-4.0 AND Apache-2.0",
+      "keywords": [
         "markdown",
         "slides",
-        "pdf"
+        "deck",
+        "pdf",
+        "agent-skill"
+      ],
+      "category": "documentation",
+      "skills": [
+        "./skills/markdown-deck"
       ]
     }
   ]

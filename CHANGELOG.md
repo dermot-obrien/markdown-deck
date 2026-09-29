@@ -4,6 +4,14 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.2] - 2026-09-29
+
+### Changed
+
+- Follows DD-11 of AI-Assisted Work. The skill's identifier is `pkg:generic/dermot-obrien/markdown-deck/markdown-deck`, a requirement on it names that and a range, and releases are tagged `markdown-deck--v<version>`, now without a second `v<version>` tag.
+- The marketplace defines one package per skill, `markdown-deck@markdown-deck` as before, instead of a separate `plugin.json` for the whole repository. CI checks each skill's versions agree.
+- CONTRIBUTING no longer tells you to install Playwright for the browser tests: `npm install` does, since 0.6.1.
+
 ## [0.6.1] - 2026-09-29
 
 ### Changed

@@ -177,8 +177,7 @@ markdown-deck/
 │   ├── themes/
 │   └── examples/
 ├── .claude-plugin/
-│   ├── plugin.json            the Claude Code plugin
-│   └── marketplace.json       this repository as a one-plugin marketplace
+│   └── marketplace.json       one Claude Code package per skill
 ├── scripts/validate-skills.mjs   checks SKILL.md against the Agent Skills specification
 ├── LICENSE, LICENSES/, NOTICE, REUSE.toml
 ├── CHANGELOG.md
@@ -193,10 +192,10 @@ markdown-deck has no skill dependencies. If it gains one, the convention is:
 
 ```yaml
 metadata:
-  x-skill-requires: "some-skill@^1.2.0"
+  x-skill-requires: "pkg:generic/<owner>/<bundle>/some-skill ^1.2.0"
 ```
 
-plus a Prerequisites table in `SKILL.md` and an explicit instruction telling the agent to stop if the required skill is absent. The Agent Skills specification has no dependency field yet, so `x-skill-requires` is informational for every agent; the Claude Code plugin route is the one that enforces it, from the same requirement repeated in `plugin.json` under `dependencies` with a semantic-version range. The [architecture-pattern](https://github.com/dermot-obrien/architecture-pattern) plugin depends on this one that way.
+plus a Prerequisites table in `SKILL.md` and an explicit instruction telling the agent to stop if the required skill is absent. The Agent Skills specification has no dependency field yet, so `x-skill-requires` is informational for every agent; the Claude Code plugin route is the one that enforces it, from the same requirement repeated in the skill's entry in `.claude-plugin/marketplace.json` under `dependencies` with a semantic-version range. The [architecture-pattern](https://github.com/dermot-obrien/architecture-pattern) plugin depends on this one that way.
 
 The optional `model` skill from [diagram-model](https://github.com/dermot-obrien/diagram-model), when installed where an agent reads skills, adds two things: `model doctor --skill markdown-deck` checks a repository's defaults against `inputs.toml`, and `build --refresh` re-renders a stale diagram image. Neither is needed to build a deck.
 
@@ -373,6 +372,10 @@ Node's built-in test runner, no extra dependency. `tests/parse`, `tests/render` 
 ## Compatibility notes
 
 `SKILL.md` carries only the five fields the Agent Skills specification defines: `name`, `description`, `license`, `compatibility`, `metadata`. Tool-specific frontmatter is deliberately absent, because several tools reject unknown fields on upload and none of them mean the same thing across implementations. Any tool-specific behaviour belongs in an overlay applied at install time, not in this file.
+
+## Versions and identifiers
+
+The skill is identified by a Package URL of the `generic` type, `pkg:generic/dermot-obrien/markdown-deck/markdown-deck`, which names no host, so a mirror or a move changes where it is fetched from but not what it is called. It has its own Semantic Version in `SKILL.md` (`metadata.version`), and each release is tagged `markdown-deck--v<version>`. A skill that needs this one declares it as `pkg:generic/dermot-obrien/markdown-deck/markdown-deck ^0.6.0`. This follows DD-11 of [AI-Assisted Work](https://github.com/dermot-obrien/ai-assisted-work/blob/main/docs/about/design-decisions.md).
 
 ## Origin
 
