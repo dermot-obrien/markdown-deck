@@ -35,21 +35,34 @@ export function slug(s) {
 }
 
 /**
+ * A test for whether an offset in `md` lies inside a fenced code block, fences included.
+ * A document that shows deck tags or headings in a code example must not have them read as
+ * its own.
+ */
+function fencedTest(md) {
+  const ranges = [];
+  let open = -1;
+  let offset = 0;
+  for (const line of md.split('\n')) {
+    if (FENCE_RE.test(line)) {
+      if (open < 0) open = offset;
+      else { ranges.push([open, offset + line.length + 1]); open = -1; }
+    }
+    offset += line.length + 1;
+  }
+  if (open >= 0) ranges.push([open, offset]);
+  return (at) => ranges.some(([a, b]) => at >= a && at < b);
+}
+
+/**
  * Headings outside fenced code blocks. A `# comment` line inside a bash fence is not a
  * heading, and treating it as one silently truncates the preceding slide.
  */
 function headings(md) {
-  const fenced = new Set();
-  let open = false;
-  let offset = 0;
-  for (const line of md.split('\n')) {
-    if (FENCE_RE.test(line)) open = !open;
-    if (open) for (let i = offset; i < offset + line.length + 1; i++) fenced.add(i);
-    offset += line.length + 1;
-  }
+  const inFence = fencedTest(md);
   const out = [];
   for (const m of md.matchAll(HEADING_RE)) {
-    if (fenced.has(m.index)) continue;
+    if (inFence(m.index)) continue;
     out.push({
       level: m[1].length,
       title: m[2].trim(),
@@ -90,7 +103,9 @@ export function collectSlides(md, { onWarn = () => {} } = {}) {
   // section or appendix can be kept in the document and left off the slides in one place.
   // Headings inside it still end the section before it, as they do in the document.
   const skipped = [...md.matchAll(SKIP_RE)].map((m) => [m.index, m.index + m[0].length]);
-  const inSkip = (at) => skipped.some(([a, b]) => at >= a && at < b);
+  // A tag shown in a code example is text, not a tag.
+  const inFence = fencedTest(md);
+  const inSkip = (at) => inFence(at) || skipped.some(([a, b]) => at >= a && at < b);
   const hs = headings(md);
   const slides = [];
   for (const tag of md.matchAll(IMAGE_RE)) {
@@ -247,7 +262,8 @@ export function paginateTables(body, limit) {
 
 /** The cover declaration, or null. */
 export function collectCover(md) {
-  const m = COVER_RE.exec(md);
+  const inFence = fencedTest(md);
+  const m = [...md.matchAll(new RegExp(COVER_RE.source, 'g'))].find((x) => !inFence(x.index));
   return m ? attrs(m[1]) : null;
 }
 

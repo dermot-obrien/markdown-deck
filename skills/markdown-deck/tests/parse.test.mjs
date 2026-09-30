@@ -173,3 +173,27 @@ test('paginateTables ignores pipes inside a code fence', () => {
   const body = ['```', table(30), '```'].join('\n');
   assert.deepEqual(paginateTables(body, 12), [body]);
 });
+
+test('tags shown in a code example are not read as tags', () => {
+  const md = [
+    '# T', '',
+    '<!-- deck:cover subtitle="Real" -->', '',
+    '```markdown',
+    '<!-- deck:cover subtitle="Example" -->',
+    '<!-- deck:image src="x.png" -->',
+    '<!-- deck:slide -->',
+    '## In the example',
+    '```', '',
+    '<!-- deck:slide -->',
+    '## Real', '', 'Body.', '',
+  ].join('\n');
+  const warnings = [];
+  const slides = collectSlides(md, { onWarn: (m) => warnings.push(m) });
+  assert.deepEqual(slides.map((s) => `${s.kind}:${s.title}`), ['content:Real']);
+  assert.deepEqual(warnings, []);
+  assert.equal(collectCover(md).subtitle, 'Real');
+});
+
+test('a cover shown only in a code example is no cover', () => {
+  assert.equal(collectCover('# T\n\n```\n<!-- deck:cover -->\n```\n'), null);
+});

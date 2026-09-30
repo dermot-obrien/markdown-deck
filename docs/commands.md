@@ -56,7 +56,20 @@ Output, in the output folder:
 | `deck.pdf` | With `--pdf`, one 16:9 page per slide |
 | `slides/*.html` | With `--partials` |
 
-In the deck: the arrow keys or Previous and Next move between slides, `I` toggles the index, `T` switches it between titles and thumbnails, `F` presents full screen, and `C` toggles the comments panel where there is one.
+### In the deck
+
+| Key | Does |
+|---|---|
+| Right, Down, Page Down, Space | Next slide |
+| Left, Up, Page Up | Previous slide |
+| Home, End | First slide, last slide |
+| `I` | Show or hide the slide index |
+| `T` | Switch the index between titles and thumbnails |
+| `F` | Present full screen; Esc leaves it |
+| `C` | Show or hide the comments panel, in a deck built with comments |
+| Ctrl+Enter, Cmd+Enter | Save the comment being typed |
+
+The toolbar's Previous and Next buttons, and a click on a slide in the index, do the same. Keys work while a designed HTML slide has the focus too, and are left alone while you type in a field. The address follows the slide, `deck.html#interfaces`, so a copied link opens that slide; see [Slide ids and addresses](tags.md#slide-ids-and-addresses).
 
 ## pdf
 

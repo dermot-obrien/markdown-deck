@@ -40,6 +40,22 @@ The path to the Markdown file is wrong, relative to the working directory.
 
 A `deck:slide` tag attaches to the next heading. Move it to just before one.
 
+### `deck:image tag at offset <n> has no src; skipped` and `deck:html tag at offset <n> has no src; skipped`
+
+The tag needs `src="..."`, the file to show. Check the attribute is spelt `src` and uses double quotes; see [How tags are written](tags.md#how-tags-are-written).
+
+### `deck:divider tag at offset <n> has no title and no heading after it; skipped`
+
+A divider takes its title from the next heading. At the end of a document there is none, so give the tag `title="..."`.
+
+### `deck:include tag at offset <n> needs src or deck, and section or slide; skipped`
+
+An include names where the section comes from, `src` or `deck`, and which one, `section` or `slide`. See [deck:include](tags.md#deckinclude).
+
+### A tag shown in a code example became a slide
+
+Fixed in 0.6.8: tags inside a fenced code block are text, not tags. Update the skill.
+
 ### `slide "<label>" is empty after deck:skip removal; skipped`
 
 The tagged section has nothing left once skipped text and notes are removed. Untag it, or give it content.
@@ -48,6 +64,18 @@ The tagged section has nothing left once skipped text and notes are removed. Unt
 
 A Markdown image's file does not exist, relative to the document. Correct the path.
 
+### `linked document not found, left as-is: <path>`
+
+A slide links to a `.md` or `.mdx` file that does not exist, relative to the document the link is written in. Correct the path, or remove the link.
+
+### `<path> is outside the workspace, so it has no page under documentBase; linked by path`
+
+With `documentBase` set, a link goes to the linked document's page, found from its path within the workspace. This document is above the workspace root, so it has none, and the link goes to the file by a path from the deck instead. Link to a copy inside the workspace, or to its published URL.
+
+### A link to another document is broken in the published deck
+
+Without `documentBase`, a link to another Markdown document goes to the source file by a path from the deck, which works only while the deck sits beside the workspace. Set [documentBase](configuration.md#documentbase) to where the documents are published. If the link now goes to a page that does not exist, the site does not publish that document.
+
 ### `image slide "<label>" skipped: <src> not found` and `html slide "<label>" skipped: <src> not found`
 
 The file a `deck:image` or `deck:html` tag names does not exist, relative to the document.
@@ -55,6 +83,10 @@ The file a `deck:image` or `deck:html` tag names does not exist, relative to the
 ### `image slide "<label>" is <w>x<h>, not 16:9; it will be letterboxed`
 
 Export the image at 16:9, ideally 1920x1080.
+
+### `image slide "<label>" is <w>x<h>; below 1920x1080 it will look soft when presented`
+
+The image is 16:9 but small, so it is scaled up on a full-screen display. Export it at 1920x1080 or larger.
 
 ### `html slide "<label>" loads <n> resource(s) from the network`
 

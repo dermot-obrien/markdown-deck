@@ -277,7 +277,8 @@ The agent finds the skill in `.agents/skills/markdown-deck`, adds or adjusts the
 
 ## Next
 
-- [Concepts](concepts.md): every tag, themes, palettes, backgrounds, includes, review comments and publishing.
+- [Tag reference](tags.md): every tag and every attribute it takes.
+- [Concepts](concepts.md): how tags, themes, palettes, backgrounds, includes, review comments and publishing work.
 - [Configuration reference](configuration.md): every binding and front matter key.
 - [Command reference](commands.md): every command and option.
 - [Troubleshooting](troubleshooting.md): what each error and warning means.

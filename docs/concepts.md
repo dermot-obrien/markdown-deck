@@ -38,11 +38,13 @@ Every slide is a fixed 1920x1080 canvas, so the HTML and the PDF are always 16:9
 | `<!-- deck:skip -->` ... `<!-- /deck:skip -->` | Inside or around sections | Kept in the document, dropped from the deck |
 | `<!-- deck:note -->` ... `<!-- /deck:note -->` | Inside a tagged section | Presenter notes, never on screen or in the PDF |
 
-A `deck:slide` tag attaches to the next heading, not the one before it. Put each tag on its own line with a blank line either side. The slide's title is the heading text, unless `title="..."` overrides it, and its id, used in the slide's address such as `deck.html#interfaces`, comes from `label` or the title. `eyebrow="..."` on a `deck:slide` sets the small line above its title for that slide.
+Every attribute of every tag is in the [tag reference](tags.md). A `deck:slide` tag attaches to the next heading, not the one before it. Put each tag on its own line with a blank line either side. The slide's title is the heading text, unless `title="..."` overrides it, and its id, used in the slide's address such as `deck.html#interfaces`, comes from `label` or the title. `eyebrow="..."` on a `deck:slide` sets the small line above its title for that slide.
 
 A slide needing more than about twelve lines of body is too dense. Split the section, or move the overflow inside `deck:skip`. Around a whole section or appendix, `deck:skip` drops every tag inside it too.
 
-Reference links, `[text][label]` with `[label]: url` at the foot of the document, resolve on every slide. Relative links to other documents are not rewritten.
+A tag inside a fenced code block is text, not a tag, so a document can show tags in an example.
+
+Reference links, `[text][label]` with `[label]: url` at the foot of the document, resolve on every slide. A link to another Markdown document goes to its published page when [documentBase](configuration.md#documentbase) is set, and otherwise to the source file by a path from the deck. [What happens to links and files in a slide](tags.md#what-happens-to-links-and-files-in-a-slide) covers the rest.
 
 ## Themes
 

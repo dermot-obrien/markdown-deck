@@ -4,7 +4,7 @@ description: Render tagged sections of a Markdown document into HTML slides and 
 license: CC-BY-4.0 AND Apache-2.0. Content under CC BY 4.0, code under Apache-2.0; see LICENSE and NOTICE.
 compatibility: Node.js 18 or newer, with npm install run once in the skill directory. PDF export uses playwright, an optional dependency that install fetches, and Edge or Chrome where installed (always on Windows).
 metadata:
-  version: "0.6.7"
+  version: "0.6.8"
   homepage: https://github.com/dermot-obrien/markdown-deck
   x-skill-requires: ""
   x-derived-from: "https://github.com/dermot-obrien/ai-assisted-work/tree/ad39fd980d9f1acd6db99a4cf5046aa0998e1c08/skills/markdown-deck"
@@ -38,7 +38,7 @@ Rules that matter:
 - A table longer than twelve rows continues on the next slide with its header row repeated, titled "Interfaces (1 of 3)" and so on, rows spread evenly. The first slide keeps the section's id. Text before the table stays with its first rows and text after it follows the last. `table-rows="20"` on the `deck:slide` tag changes the limit for that slide, and `table-rows="0"` turns splitting off; `deck_table_rows` and the `tableRows` binding change it for a deck or a repository.
 - Use dividers to mark the parts of a long deck, not before every slide. Tag a heading that groups several tagged slides, such as an H2 whose H3s are slides.
 - An image slide should be a PNG at 1920x1080 or larger in 16:9. The build warns when one is not 16:9, which is letterboxed, or is smaller than 1920x1080, which looks soft when presented. A missing image slide is warned about and skipped.
-- Reference links, `[text][label]` with `[label]: url` at the foot of the document, resolve on every slide. Relative links to other documents are not rewritten, so they only work where the deck sits beside those documents.
+- Reference links, `[text][label]` with `[label]: url` at the foot of the document, resolve on every slide. A link to another Markdown document goes to its published page when `documentBase` is set (binding, `deck_document_base` or `--document-base`), otherwise to the source file by a path from the deck. A tag inside a fenced code block is ignored.
 - Local images are copied into the output `assets/` folder and the paths rewritten. A missing image is warned about and left alone rather than failing the build.
 - Video, audio and other files a slide loads are copied the same way: `src` and `poster` on any tag in a Markdown slide, and in an HTML slide also stylesheet links and CSS `url(...)`. Media over 50 MB is warned about; compress it or link to it instead.
 - Prefer Markdown. Use `deck:html` only for a slide whose design is the point, such as a hand-laid diagram or a styled comparison, because its text is not in the document. An HTML slide that loads anything from the network, such as web fonts or a script from a CDN, is warned about, since the deck is meant to open from disk; copy the file in beside it instead. A missing HTML slide is warned about and skipped.

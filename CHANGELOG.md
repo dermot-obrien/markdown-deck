@@ -4,6 +4,21 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.8] - 2026-10-01
+
+A patch release: a parsing fix and fuller documentation. `^0.6.0` still matches.
+
+### Fixed
+
+- A tag inside a fenced code block was read as a tag. A document that showed `<!-- deck:image ... -->` in an example got an extra slide, and an example `deck:slide` attached itself to the next real heading, duplicating that slide. Tags in fenced code, the cover included, are now text.
+- Concepts and SKILL.md still said links to other documents are not rewritten, which 0.6.7 changed.
+
+### Added
+
+- `docs/tags.md`, a tag reference: every tag with every attribute, its default and an example; how tags are written; slide ids and addresses; and what happens to images, media, links and reference links in a slide. Linked from the README, the quick start and Concepts.
+- The command reference lists every key the deck answers to, including Space, Page Up, Page Down, Home and End.
+- Troubleshooting covers the messages it lacked: a `deck:image` or `deck:html` tag with no `src`, a divider with no title, an include missing its source or section, an image below 1920x1080, a linked document that is missing or outside the workspace, and a link that breaks once a deck is published.
+
 ## [0.6.7] - 2026-09-30
 
 A patch release: a link that was broken now works, and `^0.6.0` still matches.
