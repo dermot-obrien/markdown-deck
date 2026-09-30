@@ -23,6 +23,7 @@ Usage:
   markdown-deck pdf <deck.html> [--out <file.pdf>]
   markdown-deck publish [<root>] --out <dir> [--list] [--pdf] [--skip a,b/c] [--reserved id,id]
                         [--registry <file> | --no-registry] [--registry-check] [--graph]
+                        [--document-base <url>]
   markdown-deck themes
 
 Build options:
@@ -54,6 +55,9 @@ Build options:
   --deck-id <id>     stable id for stored comments and the permanent URL (deck_id)
   --html-name <f>    file name for the deck (default deck.html; index.html to serve
                      it at its folder's URL)
+  --document-base <url>  where the workspace's Markdown documents are published, so a
+                     link to one goes to its page there rather than to its source file
+                     (deck_document_base; documentBase in the binding). Also for publish
   --refresh          re-render any image whose diagram changed since it was rendered
                      (needs the model skill and draw.io desktop), instead of warning
   --pdf, --no-pdf    export deck.pdf too, or not (needs playwright). Defaults to deck_pdf
@@ -124,6 +128,7 @@ async function main() {
       skip: list(args.skip), reserved: list(args.reserved),
       registry: args['no-registry'] ? false : (args.registry && args.registry !== true ? args.registry : undefined),
       registryMode: args['registry-check'] ? 'check' : undefined,
+      documentBase: args['document-base'] && args['document-base'] !== true ? args['document-base'] : undefined,
     });
     if (args.graph && !args.list) console.log(`\nDependencies\n${formatGraph(r.graph)}\n`);
     console.log(`  ${r.decks.length} deck(s)${r.problems.length ? `, ${r.problems.length} problem(s)` : ''}`);
@@ -160,6 +165,7 @@ async function main() {
     tableRows: args['table-rows'] !== undefined ? Number(args['table-rows']) : undefined,
     pdf: args['no-pdf'] ? false : (args.pdf ? true : undefined),
     refresh: Boolean(args.refresh),
+    documentBase: args['document-base'] && args['document-base'] !== true ? args['document-base'] : undefined,
     onWarn: (m) => { warnings++; console.error(`  ! ${m}`); },
   });
 

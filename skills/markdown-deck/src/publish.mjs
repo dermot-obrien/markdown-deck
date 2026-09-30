@@ -33,9 +33,11 @@ function registryFile(root, opt) {
 /**
  * @param {string} root   the workspace to search
  * @param {{out: string, skip?: string[], reserved?: string[], list?: boolean, pdf?: boolean,
- *          registry?: string|false, registryMode?: 'update'|'check',
+ *          registry?: string|false, registryMode?: 'update'|'check', documentBase?: string,
  *          external?: {id: string, source: string}[],
  *          onLog?: Function, onWarn?: Function}} opts
+ *   documentBase   where the workspace's documents are published, so a deck's link to
+ *                  one goes to its page there; see build()
  *   external       decks published some other way that the registry should also protect
  *   registryMode   'update' records new decks; 'check' fails on them. Defaults to 'check'
  *                  when the CI environment variable is set, as it is in most CI systems
@@ -66,7 +68,7 @@ export async function publishAll(root, opts) {
     let r;
     try {
       r = build(path.join(root, d.source), {
-        out: dir, deckId: d.id, htmlName: 'index.html', root,
+        out: dir, deckId: d.id, htmlName: 'index.html', root, documentBase: opts.documentBase,
         onWarn: (m) => onWarn(`${d.source}: ${m}`),
       });
     } catch (e) {

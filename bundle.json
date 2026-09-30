@@ -12,8 +12,8 @@
     {
       "name": "markdown-deck",
       "path": "skills/markdown-deck",
-      "version": "0.6.6",
-      "purl": "pkg:generic/dermot-obrien/markdown-deck/markdown-deck@0.6.6",
+      "version": "0.6.7",
+      "purl": "pkg:generic/dermot-obrien/markdown-deck/markdown-deck@0.6.7",
       "requires": [],
       "check": {
         "command": ["node", "bin/check.mjs"],
