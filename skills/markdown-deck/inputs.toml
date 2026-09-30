@@ -10,6 +10,7 @@
 #   background         deck_background
 #   comments           deck_comments
 #   thumbnails         deck_thumbnails
+#   slideNumbers       deck_slide_numbers
 #   feedbackTo         deck_feedback_to
 #   feedbackSubject    deck_feedback_subject
 #   pdf                deck_pdf
@@ -37,6 +38,12 @@ type = "str"
 required = false
 default = "false"
 description = "true to open every deck's slide index with thumbnails rather than titles"
+
+[inputs.options.slideNumbers]
+type = "str"
+required = false
+default = "true"
+description = "false to leave the page number off every slide; by default each slide but the first carries one"
 
 [inputs.options.pdf]
 type = "str"

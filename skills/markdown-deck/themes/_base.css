@@ -316,6 +316,15 @@ body.presenting .stage { padding: 0; }
 }
 .slide-header h1 { font-size: 46px; color: var(--heading); line-height: 1.15; font-weight: 700; }
 
+/* Page number, bottom right of every slide but the first. Tokens: --slide-number-fg, and
+   on dividers --divider-muted. It sits above an HTML slide's frame. */
+.slide-number {
+  position: absolute; right: 44px; bottom: 26px; z-index: 2;
+  font-size: 20px; font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--slide-number-fg, var(--accent-deep)); pointer-events: none;
+}
+.slide.divider .slide-number, .slide.cover .slide-number { color: var(--divider-muted, var(--cover-muted)); }
+
 .slide-body { flex: 1; padding: 30px 88px 52px; overflow: hidden; display: flex; flex-direction: column; }
 .fit { transform-origin: top center; width: 100%; }
 .fit > *:first-child { margin-top: 0; }

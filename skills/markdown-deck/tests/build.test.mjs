@@ -74,6 +74,14 @@ test('titles only by default; thumbnails from the option or front matter', () =>
   assert.doesNotMatch(off, /<body class="index-thumbs">/, 'the option overrides front matter');
 });
 
+test('page numbers by default; off by option or front matter', () => {
+  const src = write('doc.md', DOC);
+  assert.match(build(src, { out: path.join(dir, 'n1'), ...quiet }).deckHtml, /class="slide-number"/);
+  assert.doesNotMatch(build(src, { out: path.join(dir, 'n2'), slideNumbers: false, ...quiet }).deckHtml, /class="slide-number"/);
+  const fm = write('nofm.md', DOC.replace('sidebar_label: "Test"', 'sidebar_label: "Test"\ndeck_slide_numbers: false'));
+  assert.doesNotMatch(build(fm, { out: path.join(dir, 'n3'), ...quiet }).deckHtml, /class="slide-number"/);
+});
+
 test('a missing image is warned about and left as written', () => {
   const src = write('doc.md', DOC.replace('./pic.svg', './gone.svg'));
   const warnings = [];
