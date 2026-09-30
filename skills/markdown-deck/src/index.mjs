@@ -311,7 +311,7 @@ function checkImage(file, label, onWarn) {
 /**
  * @param {string} input     path to the tagged Markdown file
  * @param {object} opts      { out, theme, palette, background, title, subtitle, date,
- *                             footnote, eyebrow, logo, mermaidSrc, partials, thumbnails,
+ *                             footnote, eyebrow, logo, mermaidSrc, partials, thumbnails, slideNumbers,
  *                             comments, tableRows, feedbackTo, feedbackSubject, deckId,
  *                             htmlName, bindings, strictRenders, refresh, root, onWarn, onLog }
  *
@@ -606,6 +606,8 @@ export function build(input, opts = {}) {
     mermaidSrc: needsMermaid ? mermaidFor() : '',
     // The slide index lists titles unless asked for thumbnails, by option or front matter.
     thumbnails: Boolean(pick(opts.thumbnails, 'deck_thumbnails', 'thumbnails', false)),
+    // A page number on every slide but the first, unless turned off.
+    slideNumbers: String(pick(opts.slideNumbers, 'deck_slide_numbers', 'slideNumbers', true)) !== 'false',
     // Per-slide review comments, off unless asked for. The id keys the reviewer's stored
     // comments, so it must not change when the file is renamed or the title reworded.
     comments: Boolean(pick(opts.comments, 'deck_comments', 'comments', false)),

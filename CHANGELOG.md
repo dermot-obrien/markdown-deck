@@ -4,6 +4,14 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.6] - 2026-09-30
+
+A patch release, although it adds a capability: nothing here breaks a dependent, and `^0.6.0` still matches.
+
+### Added
+
+- Page numbers. Every slide but the first carries its page number, bottom right, on screen and in the PDF. It counts the cover, so the number matches the PDF's page. On by default; `--no-slide-numbers`, `deck_slide_numbers: false` in front matter or `slideNumbers = false` in `[suite.markdown-deck]` leaves it off. A theme colours it with the new `--slide-number-fg` token; dividers use `--divider-muted`. `inputs.toml` declares `slideNumbers`.
+
 ## [0.6.5] - 2026-09-30
 
 A patch release, although it adds capabilities: nothing here breaks a deck or a dependent, and `^0.6.0` still matches.

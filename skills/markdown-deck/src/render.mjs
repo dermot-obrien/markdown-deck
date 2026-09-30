@@ -776,7 +776,7 @@ const toolbar = (comments) => `<nav class="toolbar" aria-label="Slide navigation
  *
  * @param {{title: string, eyebrow?: string, css: string, cover?: object,
  *          slides: {file?: string, title: string, bodyHtml: string, notes: string[]}[],
- *          mermaidSrc?: string, thumbnails?: boolean, comments?: boolean,
+ *          mermaidSrc?: string, thumbnails?: boolean, comments?: boolean, slideNumbers?: boolean,
  *          id?: string, version?: string, feedback?: {to?: string, subject?: string}}} deck
  */
 export function renderDeck(deck) {
@@ -799,6 +799,15 @@ export function renderDeck(deck) {
           : contentSlide({ id: s.file, eyebrow: s.eyebrow ?? deck.eyebrow, title: s.title, bodyHtml: s.bodyHtml, notes: s.notes }));
     captions.push(s.title);
     ids.push(s.file || String(ids.length + 1));
+  }
+  // A page number on every slide but the first, on screen and in the PDF. It counts the
+  // cover, so slide n of the deck shows n, matching the PDF's page number.
+  if (deck.slideNumbers !== false) {
+    for (let k = 1; k < body.length; k++) {
+      const at = body[k].lastIndexOf('</section>');
+      body[k] = `${body[k].slice(0, at)}  <div class="slide-number" aria-hidden="true">${k + 1}</div>
+${body[k].slice(at)}`;
+    }
   }
   const classes = [deck.thumbnails && 'index-thumbs', deck.comments && 'has-comments'].filter(Boolean);
   const config = deck.comments ? scriptJson({

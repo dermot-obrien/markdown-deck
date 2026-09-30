@@ -50,6 +50,7 @@ The keys are declared in the skill's `inputs.toml`. `node <skill>/bin/check.mjs`
 | `background` | `deck_background` | `--background` | path, `none`, or table | none |
 | `comments` | `deck_comments` | `--comments` | boolean | `false` |
 | `thumbnails` | `deck_thumbnails` | `--thumbnails` | boolean | `false` |
+| `slideNumbers` | `deck_slide_numbers` | `--no-slide-numbers` | boolean | `true` |
 | `pdf` | `deck_pdf` | `--pdf`, `--no-pdf` | boolean | `false` |
 | `tableRows` | `deck_table_rows` | `--table-rows` | integer, 0 for never | `12` |
 | `feedbackTo` | `deck_feedback_to` | `--feedback-to` | email address or comma-separated list | none |
@@ -149,6 +150,10 @@ A missing image, an unsupported type or an unknown key fails the build.
 ### thumbnails
 
 `true` opens the slide index with thumbnails rather than titles. `T` switches either way in the deck.
+
+### slideNumbers
+
+Every slide but the first carries its page number, bottom right, on screen and in the PDF. The number counts the cover, so it matches the PDF's page number. `false` leaves it off. A theme colours it with `--slide-number-fg`; on dividers it takes `--divider-muted`.
 
 ### pdf
 

@@ -45,6 +45,8 @@ Build options:
                      header repeated (deck_table_rows; default 12; 0 never splits)
   --thumbnails       slide index shows thumbnails; the default is titles only.
                      Front matter deck_thumbnails: true does the same per document
+  --no-slide-numbers  leave the page number off every slide; by default each slide but
+                     the first carries one (deck_slide_numbers; slideNumbers in the binding)
   --comments         add a per-slide comments panel that packages a review for email
                      or download. Front matter deck_comments: true does the same
   --feedback-to <a>  address the review email goes to (deck_feedback_to)
@@ -149,6 +151,7 @@ async function main() {
     mermaidSrc: args.mermaid,
     partials: Boolean(args.partials),
     thumbnails: args.thumbnails ? true : undefined,
+    slideNumbers: args['no-slide-numbers'] ? false : undefined,
     comments: args.comments ? true : undefined,
     feedbackTo: args['feedback-to'],
     feedbackSubject: args['feedback-subject'],

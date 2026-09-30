@@ -36,6 +36,7 @@ Builds one tagged document into a deck. It prints the slide count and the deck's
 | `--partials` | Also write `slides/*.html` fragments for hosts that embed slides | |
 | `--table-rows <n>` | Rows per slide before a table continues; `0` never splits | `deck_table_rows`, `tableRows` |
 | `--thumbnails` | Open the slide index with thumbnails | `deck_thumbnails`, `thumbnails` |
+| `--no-slide-numbers` | Leave the page number off every slide | `deck_slide_numbers`, `slideNumbers` |
 | `--comments` | Add the review comments panel | `deck_comments`, `comments` |
 | `--feedback-to <a>` | Where the review email goes | `deck_feedback_to`, `feedbackTo` |
 | `--feedback-subject <s>` | Subject of the review email | `deck_feedback_subject`, `feedbackSubject` |

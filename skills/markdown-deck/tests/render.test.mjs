@@ -112,3 +112,13 @@ test('comments on: panel, toolbar button, index badges and an escaped config', (
   assert.doesNotMatch(html.split('id="deck-config">')[1].split('</script>')[0], /<\//,
     'a closing tag inside the config would end the script early');
 });
+
+test('every slide but the first carries its page number', () => {
+  const html = deck();
+  assert.equal(count(html, /class="slide-number"/g), 2);
+  assert.match(html, /<div class="slide-number" aria-hidden="true">2<\/div>/);
+  assert.match(html, /<div class="slide-number" aria-hidden="true">3<\/div>/);
+  const cover = html.slice(html.indexOf('<section class="slide cover"'), html.indexOf('</section>'));
+  assert.doesNotMatch(cover, /slide-number/, 'the cover has none');
+  assert.equal(count(deck({ slideNumbers: false }), /class="slide-number"/g), 0, 'turned off');
+});
