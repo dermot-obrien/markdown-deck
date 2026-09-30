@@ -11,6 +11,7 @@ It is an [Agent Skill](https://agentskills.io/specification), so any agent that 
 | Guide | What it covers |
 |---|---|
 | [Quick start](docs/quick-start.md) | From nothing to a first deck, HTML and PDF, in about ten minutes |
+| [Tag reference](docs/tags.md) | Every tag and every attribute it takes, slide ids and addresses, and what happens to links and files in a slide |
 | [Concepts](docs/concepts.md) | Tags, themes, palettes and named colour schemes, background images, includes, designed slides, review comments, publishing and the registry |
 | [Configuration reference](docs/configuration.md) | Every repository binding and front matter key, with its default, type, precedence and an example |
 | [Command reference](docs/commands.md) | `build`, `pdf`, `publish`, `themes` and the post-install check, with every option |
