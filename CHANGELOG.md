@@ -4,6 +4,18 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.7] - 2026-09-30
+
+A patch release: a link that was broken now works, and `^0.6.0` still matches.
+
+### Fixed
+
+- Links to other documents. A slide's link to another Markdown document, such as `[the research](./research.md)`, was copied as written, so in a deck built to `dist/` or published on its own it pointed at a file that was not there. It now goes to the source file by a path from the deck, which holds while the deck is opened from disk.
+
+### Added
+
+- `documentBase`, for a workspace whose documents are published as a site. Set in `[suite.markdown-deck]`, as `deck_document_base` in front matter, or with `--document-base` on `build` and `publish`, it sends each link to a document to that document's page: its path from the workspace root without the extension, `index.md` and `README.md` standing for their folder, a `slug` in its front matter honoured, as a folder URL with the fragment kept. Inline links, reference definitions and `<a href>` are covered, in a deck's own slides, included sections and designed HTML slides. A link to a missing document is left as written and warned about. `inputs.toml` declares `documentBase`. `rewriteLinks`, `documentRoute` and `documentUrl` are exported for hosts.
+
 ## [0.6.6] - 2026-09-30
 
 A patch release, although it adds a capability: nothing here breaks a dependent, and `^0.6.0` still matches.

@@ -42,6 +42,7 @@ Builds one tagged document into a deck. It prints the slide count and the deck's
 | `--feedback-subject <s>` | Subject of the review email | `deck_feedback_subject`, `feedbackSubject` |
 | `--deck-id <id>` | Stable id for stored comments and the published URL | `deck_id` |
 | `--html-name <f>` | File name for the deck, such as `index.html` | default `deck.html` |
+| `--document-base <url>` | Where the workspace's documents are published, so a link to one goes to its page | `deck_document_base`, `documentBase` |
 | `--refresh` | Re-render a stale diagram image through the model skill before using it | |
 | `--pdf`, `--no-pdf` | Export `deck.pdf`, or not | `deck_pdf`, `pdf` |
 
@@ -93,6 +94,7 @@ Builds every document under `<root>` (default the working directory) whose front
 | `--no-registry` | Ignore a bound registry |
 | `--registry-check` | Only check the registry: a deck it does not know fails rather than being recorded. On by default when `CI` is set |
 | `--graph` | Print what each deck was built from, and anything used by more than one deck |
+| `--document-base <url>` | Where the workspace's documents are published, for every deck that does not set its own; see [documentBase](configuration.md#documentbase) |
 
 A problem with one deck, such as a missing `deck_id` or an include whose target moved, is reported and fails the command, but the other decks are still built. See [Publishing a workspace](concepts.md#publishing-a-workspace).
 
@@ -133,4 +135,4 @@ const r = build('talk.md', { out: 'dist', palette: 'dusk', background: 'art/text
 if (r.pdf) await exportPdf(`${r.outDir}/${r.manifest.html}`, `${r.outDir}/deck.pdf`);
 ```
 
-`build()` takes the options above in camel case (`tableRows`, `feedbackTo`, `deckId`, `htmlName`, `mermaidSrc`), plus `background` as a table, `palette` as a table of tokens, `bindings: false` to ignore the repository, `strictRenders` to fail on a stale diagram image, and `onWarn` and `onLog` callbacks. `src/catalog.cjs` exports `findPublishedDecks` and `menuItems` for a site's menu.
+`build()` takes the options above in camel case (`tableRows`, `feedbackTo`, `deckId`, `htmlName`, `mermaidSrc`, `documentBase`), plus `background` as a table, `palette` as a table of tokens, `bindings: false` to ignore the repository, `strictRenders` to fail on a stale diagram image, and `onWarn` and `onLog` callbacks. `src/catalog.cjs` exports `findPublishedDecks` and `menuItems` for a site's menu.

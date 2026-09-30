@@ -14,7 +14,7 @@ import matter from 'gray-matter';
 import { createRequire } from 'node:module';
 import {
   collectSlides, collectCover, slideBody, rewriteImages, linkDefinitions, findSection, slug,
-  rewriteResources, remoteResources, paginateTables,
+  rewriteResources, rewriteLinks, remoteResources, paginateTables,
 } from './parse.mjs';
 import { makeMarked, renderSlideBody, renderDeck, renderPartial } from './render.mjs';
 import { repoDefaults, workspaceRoot } from './bindings.mjs';
@@ -26,6 +26,33 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const THEMES = path.resolve(HERE, '..', 'themes');
 export const MERMAID_CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
 const MERMAID_FILE = path.join('node_modules', 'mermaid', 'dist', 'mermaid.min.js');
+const DOCUMENT_EXT = /\.mdx?$/i;
+
+/**
+ * Where a document of the workspace is published, relative to the site's root: its path
+ * from the workspace root with the extension dropped, and a folder's index.md or
+ * README.md standing for the folder. A `slug` in the document's front matter replaces
+ * that: one starting with / is the whole route, any other replaces the file name within
+ * its folder. Null for a document outside the workspace.
+ */
+export function documentRoute(file, root) {
+  const rel = path.relative(root, file).split(path.sep).join('/');
+  if (!rel || rel.startsWith('../') || path.isAbsolute(rel)) return null;
+  const dir = path.posix.dirname(rel) === '.' ? '' : path.posix.dirname(rel);
+  const trim = (r) => r.split('/').filter(Boolean).join('/');
+  let fm = {};
+  try { fm = matter(fs.readFileSync(file, 'utf8')).data || {}; } catch { /* no usable front matter */ }
+  const slugged = typeof fm.slug === 'string' ? fm.slug.trim() : '';
+  if (slugged) return trim(slugged.startsWith('/') ? slugged : `${dir}/${slugged}`);
+  const name = path.posix.basename(rel).replace(DOCUMENT_EXT, '');
+  return trim(/^(index|readme)$/i.test(name) ? dir : `${dir}/${name}`);
+}
+
+/** A route under documentBase, as a folder URL: `/docs/` and `a/b` give `/docs/a/b/`. */
+export function documentUrl(base, route) {
+  const encoded = route.split('/').filter(Boolean).map(encodeURIComponent).join('/');
+  return `${base.replace(/\/+$/, '')}/${encoded ? `${encoded}/` : ''}`;
+}
 
 /**
  * A mermaid installed where the document or this skill can see it: the nearest
@@ -442,9 +469,29 @@ export function build(input, opts = {}) {
     css += backgroundCss(null);
   }
 
+  // A link to another document of the workspace would point at its Markdown source, which
+  // is not beside the deck. With documentBase, where the workspace's documents are
+  // published, it goes to the document's page there; without, to the source file by a
+  // path from the deck, which holds while the deck is opened from disk.
+  const documentBase = String(pick(opts.documentBase, 'deck_document_base', 'documentBase', '') || '');
+  const linkDocument = (baseDir) => (href, suffix) => {
+    if (!DOCUMENT_EXT.test(href)) return null;
+    const file = path.resolve(baseDir, href);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+      onWarn(`linked document not found, left as-is: ${href}`);
+      return null;
+    }
+    if (documentBase) {
+      const route = documentRoute(file, root);
+      if (route !== null) return documentUrl(documentBase, route) + suffix;
+      onWarn(`${href} is outside the workspace, so it has no page under documentBase; linked by path`);
+    }
+    return path.relative(outDir, file).split(path.sep).map(encodeURIComponent).join('/') + suffix;
+  };
+
   // Reference links resolve against definitions anywhere in the document, usually its
   // foot, so every slide carries the full set.
-  const defs = linkDefinitions(content);
+  const defs = rewriteLinks(linkDefinitions(content), linkDocument(srcDir));
   const used = new Set();
   const uniqueId = (label) => {
     let file = slug(label);
@@ -507,14 +554,15 @@ export function build(input, opts = {}) {
         });
         continue;
       }
+      const incDefs = rewriteLinks(inc.defs, linkDocument(incDir));
       pushContent({
         label: s.label || inc.title,
         title: s.title || inc.title,
         eyebrow: s.eyebrow ?? `From ${inc.sourceTitle}`,
         source: inc.where,
         notes,
-        body: rewriteImages(stripped, (href) => copyAsset(href, incDir)),
-        finish: (page) => `${page}\n\n${inc.defs}`,
+        body: rewriteLinks(rewriteImages(stripped, (href) => copyAsset(href, incDir)), linkDocument(incDir)),
+        finish: (page) => `${page}\n\n${incDefs}`,
       });
       continue;
     }
@@ -534,7 +582,10 @@ export function build(input, opts = {}) {
         onWarn(`html slide "${s.label}" loads ${remote.length} resource(s) from the network, so it is `
           + `incomplete offline: ${remote.slice(0, 3).join(', ')}${remote.length > 3 ? ', ...' : ''}`);
       }
-      const html = rewriteResources(raw, (h) => copyAsset(h, path.dirname(file), 'file'), { css: true });
+      const html = rewriteLinks(
+        rewriteResources(raw, (h) => copyAsset(h, path.dirname(file), 'file'), { css: true }),
+        linkDocument(path.dirname(file)), { markdown: false },
+      );
       slides.push({
         kind: 'html', file: uniqueId(s.label), label: s.label, title: s.title, html,
         header: s.header, ...(s.eyebrow !== undefined ? { eyebrow: s.eyebrow } : {}), notes: [],
@@ -562,7 +613,10 @@ export function build(input, opts = {}) {
       limit: s.tableRows,
       ...(s.eyebrow !== undefined ? { eyebrow: s.eyebrow } : {}),
       notes,
-      body: rewriteImages(rewriteResources(stripped, (h) => copyAsset(h, srcDir, 'file')), copyAsset),
+      body: rewriteLinks(
+        rewriteImages(rewriteResources(stripped, (h) => copyAsset(h, srcDir, 'file')), copyAsset),
+        linkDocument(srcDir),
+      ),
       finish: (page) => `${page}\n\n${defs}`,
     });
   }
@@ -658,4 +712,4 @@ export function build(input, opts = {}) {
   return { deckHtml, slides, outDir, manifest, pdf: wantPdf === true || wantPdf === 'true' };
 }
 
-export { collectSlides, collectCover, slideBody, rewriteImages } from './parse.mjs';
+export { collectSlides, collectCover, slideBody, rewriteImages, rewriteLinks } from './parse.mjs';

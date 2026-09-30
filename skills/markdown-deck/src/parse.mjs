@@ -317,6 +317,52 @@ export function rewriteResources(html, resolve, { css = false } = {}) {
   return out;
 }
 
+const A_HREF = /(<a\b[^>]*?\shref\s*=\s*)(["'])([^"']*)\2/gi;
+// An inline link, `[text](href "title")`, whose text may hold one level of brackets, such
+// as an image, `[![alt](a.png)](b.md)`. An image itself is not a link.
+const INLINE_LINK = /(?<!!)\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*(<[^>]*>|[^)\s]+)([^)]*)\)/g;
+
+/**
+ * Rewrite where local links point through `resolve(path, suffix)`, which returns the new
+ * href or null to leave the link untouched. `path` is decoded and has no query or
+ * fragment; `suffix` is the `?query#fragment` as written, for resolve to keep.
+ *
+ * Covers inline Markdown links, reference definitions and the `href` of an HTML `<a>`;
+ * with `markdown: false`, for a whole HTML file, only the `<a>`. Images and the resources
+ * HTML loads are rewriteImages' and rewriteResources' business. Fenced code is left alone.
+ */
+export function rewriteLinks(text, resolve, { markdown = true } = {}) {
+  const fix = (href) => {
+    const bare = href.replace(/^<|>$/g, '');
+    if (!LOCAL(bare)) return null;
+    const cut = bare.search(/[?#]/);
+    const file = cut < 0 ? bare : bare.slice(0, cut);
+    if (!file) return null;
+    let clean = file;
+    try { clean = decodeURIComponent(file); } catch { /* keep as written */ }
+    return resolve(clean, cut < 0 ? '' : bare.slice(cut));
+  };
+  const anchors = (s) => s.replace(A_HREF, (m, pre, q, href) => {
+    const next = fix(href);
+    return next ? `${pre}${q}${next}${q}` : m;
+  });
+  if (!markdown) return anchors(text);
+  let open = false;
+  return text.split('\n').map((line) => {
+    if (FENCE_RE.test(line)) { open = !open; return line; }
+    if (open) return line;
+    const def = line.match(/^( {0,3}\[[^\]]+\]:[ \t]*)(\S+)(.*)$/);
+    if (def) {
+      const next = fix(def[2]);
+      return next ? `${def[1]}${next}${def[3]}` : line;
+    }
+    return anchors(line.replace(INLINE_LINK, (m, label, href, rest) => {
+      const next = fix(href);
+      return next ? `[${label}](${next}${rest})` : m;
+    }));
+  }).join('\n');
+}
+
 /**
  * The resources HTML would fetch from the network: `src`, `poster`, a `<link>` `href`,
  * CSS `url(...)` and `@import`. A deck is meant to open from disk, so each one is a place

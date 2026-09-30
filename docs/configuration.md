@@ -53,6 +53,7 @@ The keys are declared in the skill's `inputs.toml`. `node <skill>/bin/check.mjs`
 | `slideNumbers` | `deck_slide_numbers` | `--no-slide-numbers` | boolean | `true` |
 | `pdf` | `deck_pdf` | `--pdf`, `--no-pdf` | boolean | `false` |
 | `tableRows` | `deck_table_rows` | `--table-rows` | integer, 0 for never | `12` |
+| `documentBase` | `deck_document_base` | `--document-base` | URL, absolute or from the site root | none |
 | `feedbackTo` | `deck_feedback_to` | `--feedback-to` | email address or comma-separated list | none |
 | `feedbackSubject` | `deck_feedback_subject` | `--feedback-subject` | text | `Review: <deck title>` |
 | `mermaid` | | `--mermaid` | path to `mermaid.min.js`, or URL | installed copy, else CDN |
@@ -162,6 +163,12 @@ Every slide but the first carries its page number, bottom right, on screen and i
 ### tableRows
 
 Rows a table may carry on one slide before it continues on the next, header repeated. `0` never splits, so a long table shrinks to fit. `table-rows="20"` on one `deck:slide` tag overrides it for that slide.
+
+### documentBase
+
+Where the workspace's Markdown documents are published, such as `/docs/` or `https://docs.example.com/`. A slide's link to another `.md` or `.mdx` document of the workspace then goes to that document's page: its path from the workspace root without the extension, a folder's `index.md` or `README.md` standing for the folder, as a folder URL ending in `/`. A `slug` in the linked document's front matter replaces that route when it starts with `/`, and replaces the file name within its folder otherwise. The fragment is kept, so `[x](./guide.md#setup)` becomes `/docs/topic/guide/#setup`.
+
+Unset, the link goes to the source file by a path from the deck, which works while the deck is opened from disk beside the workspace but not once it is published on its own. A link to a document that does not exist is left as written and warned about. Inline links, reference definitions and `<a href>` are covered, in the deck's own slides, included sections and designed HTML slides; links to other files, to URLs and within the page are not touched.
 
 ### feedbackTo and feedbackSubject
 
