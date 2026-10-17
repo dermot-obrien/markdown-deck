@@ -4,6 +4,14 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions are semantic, with the contract defined as: MAJOR for a changed skill `name`, a removed script, a changed CLI interface or a changed output shape; MINOR for new capabilities, themes or tags; PATCH for wording, fixes and documentation.
 
+## [0.6.9] - 2026-10-17
+
+A patch release: a warning for an image the deck was leaving out silently. `^0.6.0` still matches.
+
+### Fixed
+
+- An image outside every slide was dropped without a word. A diagram placed under the cover, between the cover tag and the first `deck:slide`, is the common case: the cover shows its title, subtitle and footnote only, and a slide starts at its heading, so the picture appeared in the document and never in the deck or the PDF. The build now warns, naming the image, and says to move it under a slide's heading or wrap it in `deck:skip` to keep it for the document only. An image inside `deck:skip` or fenced code is not reported.
+
 ## [0.6.8] - 2026-10-01
 
 A patch release: a parsing fix and fuller documentation. `^0.6.0` still matches.

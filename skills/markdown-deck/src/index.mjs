@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 import { createRequire } from 'node:module';
 import {
-  collectSlides, collectCover, slideBody, rewriteImages, linkDefinitions, findSection, slug,
+  collectSlides, collectCover, slideBody, rewriteImages, imagesOutsideSlides, linkDefinitions, findSection, slug,
   rewriteResources, rewriteLinks, remoteResources, paginateTables,
 } from './parse.mjs';
 import { makeMarked, renderSlideBody, renderDeck, renderPartial } from './render.mjs';
@@ -372,6 +372,12 @@ export function build(input, opts = {}) {
   const found = collectSlides(content, { onWarn });
   if (!cover && found.length === 0) {
     throw new Error(`${input} carries no deck: tags. Add <!-- deck:cover -->, <!-- deck:slide -->, <!-- deck:image --> or <!-- deck:html -->.`);
+  }
+  // An image the deck leaves out, most often a diagram placed under the cover: the cover shows
+  // its title, subtitle and footnote only, and a slide starts at its heading.
+  for (const href of imagesOutsideSlides(content)) {
+    onWarn(`image on no slide, left out of the deck: ${href}. It sits outside every deck:slide section `
+      + '(under the cover, or after the last slide). Move it under a slide\'s heading, or wrap it in deck:skip to keep it for the document only');
   }
 
   const outDir = path.resolve(opts.out || path.join(srcDir, 'dist'));
