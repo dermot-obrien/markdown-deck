@@ -60,6 +60,10 @@ Fixed in 0.6.8: tags inside a fenced code block are text, not tags. Update the s
 
 The tagged section has nothing left once skipped text and notes are removed. Untag it, or give it content.
 
+### `image on no slide, left out of the deck: <path>`
+
+A Markdown image lies outside every `deck:slide` section, so no slide carries it: most often a diagram placed under the cover, between the cover tag and the first slide. The cover shows its title, subtitle and footnote only, and a slide starts at its heading. Move the image under a slide's heading, or wrap it in `deck:skip` to keep it for the document only.
+
 ### `image not found, left as-is: <path>`
 
 A Markdown image's file does not exist, relative to the document. Correct the path.

@@ -89,6 +89,21 @@ test('a missing image is warned about and left as written', () => {
   assert.ok(warnings.some((w) => /gone\.svg/.test(w)));
 });
 
+test('an image under the cover, on no slide, is warned about; one in deck:skip is not', () => {
+  const under = DOC.replace('<!-- deck:cover subtitle="A subtitle" -->\n', '<!-- deck:cover subtitle="A subtitle" -->\n\n![Overview](./pic.svg)\n');
+  const warnings = [];
+  build(write('doc.md', under), { out: path.join(dir, 'dist'), onWarn: (m) => warnings.push(m) });
+  assert.ok(warnings.some((w) => /on no slide.*pic\.svg/.test(w)), warnings.join('\n'));
+  const skipped = under.replace('\n![Overview](./pic.svg)\n', '\n<!-- deck:skip -->\n![Overview](./pic.svg)\n<!-- /deck:skip -->\n');
+  const quietWarnings = [];
+  build(write('doc2.md', skipped), { out: path.join(dir, 'dist2'), onWarn: (m) => quietWarnings.push(m) });
+  assert.ok(!quietWarnings.some((w) => /on no slide/.test(w)), quietWarnings.join('\n'));
+  // The image inside the Picture slide is never reported.
+  const inSlide = [];
+  build(write('doc3.md', DOC), { out: path.join(dir, 'dist3'), onWarn: (m) => inSlide.push(m) });
+  assert.ok(!inSlide.some((w) => /on no slide/.test(w)), inSlide.join('\n'));
+});
+
 test('a slide left empty by deck:skip is dropped with a warning', () => {
   const src = write('doc.md', DOC.replace('Some words.', '<!-- deck:skip -->\nhidden\n<!-- /deck:skip -->'));
   const warnings = [];

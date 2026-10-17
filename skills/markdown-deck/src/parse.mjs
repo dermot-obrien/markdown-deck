@@ -186,6 +186,34 @@ export function collectSlides(md, { onWarn = () => {} } = {}) {
 }
 
 /**
+ * Local images the deck leaves out: every Markdown image that lies outside each deck:slide
+ * section, outside deck:skip and outside fenced code. The usual case is a diagram placed under
+ * the cover, between the cover tag and the first slide, where no slide picks it up.
+ * @returns {string[]} the image hrefs, in document order
+ */
+export function imagesOutsideSlides(md) {
+  const inFence = fencedTest(md);
+  const skipped = [...md.matchAll(SKIP_RE)].map((m) => [m.index, m.index + m[0].length]);
+  const within = (ranges, at) => ranges.some(([a, b]) => at >= a && at < b);
+  const hs = headings(md);
+  const sections = [];
+  for (const tag of md.matchAll(SLIDE_RE)) {
+    if (inFence(tag.index) || within(skipped, tag.index)) continue;
+    const h = hs.find((x) => x.start >= tag.index);
+    if (!h) continue;
+    const next = hs.find((x) => x.start > h.start && x.level <= h.level);
+    sections.push([h.end, next ? next.start : md.length]);
+  }
+  const out = [];
+  for (const m of md.matchAll(/!\[[^\]]*\]\(([^)\s]+)[^)]*\)/g)) {
+    if (inFence(m.index) || within(skipped, m.index) || within(sections, m.index)) continue;
+    if (/^(https?:|data:|#)/.test(m[1])) continue;
+    out.push(m[1]);
+  }
+  return out;
+}
+
+/**
  * One section of a document, found by its heading text, as the body a slide would have.
  * The match ignores case and surrounding space; the body runs to the next heading of the
  * same or higher level. Returns null when no heading matches.
